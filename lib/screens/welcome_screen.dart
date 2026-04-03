@@ -62,7 +62,11 @@ class WelcomeScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(24),
                             ),
                             child: const Center(
-                              child: Text('🏥', style: TextStyle(fontSize: 44)),
+                              child: Icon(
+                                Icons.local_hospital_rounded,
+                                color: Colors.white,
+                                size: 48,
+                              ),
                             ),
                           ),
 
@@ -98,9 +102,9 @@ class WelcomeScreen extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              _buildFeature('👨‍⚕️', l.featureDoctors),
-                              _buildFeature('📅', l.featureBooking),
-                              _buildFeature('💊', l.featureRx),
+                              _buildFeatureIcon(Icons.medical_services_rounded, l.featureDoctors),
+                              _buildFeatureIcon(Icons.calendar_month_rounded, l.featureBooking),
+                              _buildFeatureIcon(Icons.medication_rounded, l.featureRx),
                             ],
                           ),
 
@@ -222,11 +226,19 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFeature(String emoji, String label) {
+  Widget _buildFeatureIcon(IconData icon, String label) {
     return Column(
       children: [
-        Text(emoji, style: const TextStyle(fontSize: 30)),
-        const SizedBox(height: 6),
+        Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(icon, color: Colors.white, size: 26),
+        ),
+        const SizedBox(height: 8),
         Text(
           label,
           textAlign: TextAlign.center,

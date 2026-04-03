@@ -102,6 +102,38 @@ class AuthService {
     return '';
   }
 
+  static Future<String> googleLogin({
+    required String idToken,
+    String role = 'PATIENT',
+  }) async {
+    final uri = Uri.parse('$_baseUrl/google');
+    late http.Response response;
+
+    try {
+      response = await http
+          .post(
+            uri,
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({'idToken': idToken, 'role': role}),
+          )
+          .timeout(const Duration(seconds: 15));
+    } catch (e) {
+      throw const AuthException('Network error. Please check your connection.');
+    }
+
+    if (response.statusCode == 200) {
+      final token = _extractToken(response.body);
+      await _saveSession(token);
+      return token;
+    } else {
+      _throwFromBody(response);
+    }
+    return '';
+  }
+
   /// Logout — clear stored credentials.
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();

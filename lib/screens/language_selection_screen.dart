@@ -20,22 +20,25 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
       'code': 'fr',
       'name': 'Français',
       'subtitle': 'Langue française',
-      'flag': '🇫🇷',
-      'flagColor': Color(0xFFE8A4A4),
+      'icon': Icons.translate,
+      'flagColor': const Color(0xFF3F51B5),
+      'label': 'FR',
     },
     {
       'code': 'ar',
       'name': 'العربية',
       'subtitle': 'اللغة العربية',
-      'flag': '🇸🇦',
-      'flagColor': Color(0xFF4CAF50),
+      'icon': Icons.translate,
+      'flagColor': const Color(0xFF4CAF50),
+      'label': 'ع',
     },
     {
       'code': 'en',
       'name': 'English',
       'subtitle': 'English language',
-      'flag': '🇺🇸',
-      'flagColor': Color(0xFF9E9E9E),
+      'icon': Icons.translate,
+      'flagColor': const Color(0xFF00897B),
+      'label': 'EN',
     },
   ];
 
@@ -141,13 +144,17 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
         ),
         child: Row(
           children: [
-            // Flag circle
+            // Flag circle — uses a colored circle with text label (no emoji, instant render)
             CircleAvatar(
               backgroundColor: lang['flagColor'] as Color,
               radius: 24,
               child: Text(
-                lang['flag'] as String,
-                style: const TextStyle(fontSize: 22),
+                lang['label'] as String,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
               ),
             ),
             const SizedBox(width: 16),

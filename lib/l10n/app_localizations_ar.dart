@@ -228,4 +228,172 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get usernameLabel => 'اسم المستخدم';
+
+  @override
+  String get findDoctors => 'البحث عن أطباء';
+
+  @override
+  String get bookBestSpecialists => 'احجز مع أفضل المتخصصين';
+
+  @override
+  String get searchDoctor => 'ابحث عن طبيب، تخصص...';
+
+  @override
+  String get all => 'الكل';
+
+  @override
+  String get cardiologist => 'قلب';
+
+  @override
+  String get generalPhysician => 'عام';
+
+  @override
+  String get dermatologist => 'جلدية';
+
+  @override
+  String get availableToday => 'متاح اليوم';
+
+  @override
+  String get tomorrow => 'غداً';
+
+  @override
+  String get nextSlot => 'التالي';
+
+  @override
+  String get agenda => 'الأجندة';
+
+  @override
+  String get appointments => 'المواعيد';
+
+  @override
+  String get manageVisits => 'إدارة زياراتك الطبية';
+
+  @override
+  String get past => 'السابقة';
+
+  @override
+  String get confirmed => 'مؤكد';
+
+  @override
+  String get pending => 'قيد الانتظار';
+
+  @override
+  String get videoCall => 'مكالمة فيديو';
+
+  @override
+  String get inPerson => 'حضوري';
+
+  @override
+  String get reminder => 'تذكير';
+
+  @override
+  String get join => 'انضم';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String get newAppointment => '+ موعد جديد';
+
+  @override
+  String get rappels => 'التذكيرات';
+
+  @override
+  String get reminders => 'التذكيرات';
+
+  @override
+  String get stayOnTrack => 'ابقَ على المسار الصحيح';
+
+  @override
+  String get add => '+ إضافة';
+
+  @override
+  String get activeMeds => 'أدوية\nنشطة';
+
+  @override
+  String get activeAppts => 'مواعيد\nنشطة';
+
+  @override
+  String get totalActive => 'المجموع\nالنشط';
+
+  @override
+  String get visits => 'الزيارات';
+
+  @override
+  String get delete => 'حذف';
+
+  @override
+  String get bloodPressure => 'ضغط الدم';
+
+  @override
+  String get bloodSugar => 'سكر الدم';
+
+  @override
+  String get cholesterol => 'الكوليسترول';
+
+  @override
+  String get onceDaily => 'مرة يومياً';
+
+  @override
+  String get twiceDaily => 'مرتين يومياً';
+
+  @override
+  String get messages => 'الرسائل';
+
+  @override
+  String get searchMessages => 'البحث في الرسائل...';
+
+  @override
+  String get yesterday => 'أمس';
+
+  @override
+  String get profile => 'الملف الشخصي';
+
+  @override
+  String get darkMode => 'الوضع الداكن';
+
+  @override
+  String get languageLabel => 'اللغة';
+
+  @override
+  String get health => 'الصحة';
+
+  @override
+  String get healthGoals => 'أهداف الصحة';
+
+  @override
+  String get healthIndicators => 'مؤشرات الصحة';
+
+  @override
+  String get account => 'الحساب';
+
+  @override
+  String get personalInfo => 'المعلومات الشخصية';
+
+  @override
+  String get emergencyContact => 'جهة اتصال الطوارئ';
+
+  @override
+  String get insurance => 'التأمين';
+
+  @override
+  String get preferences => 'التفضيلات';
+
+  @override
+  String get notifications => 'الإشعارات';
+
+  @override
+  String get helpSupport => 'المساعدة والدعم';
+
+  @override
+  String get logout => 'تسجيل الخروج';
+
+  @override
+  String get comingSoon => 'قريباً';
+
+  @override
+  String get appVersion => 'ميديكير v1.0.0';
+
+  @override
+  String get doctorsNavLabel => 'الأطباء';
 }

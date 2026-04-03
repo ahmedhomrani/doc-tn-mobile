@@ -1,13 +1,143 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
+import 'doctors_screen.dart';
+import 'agenda_screen.dart';
+import 'rappels_screen.dart';
+import 'chat_screen.dart';
+import 'profile_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
+
+  static const _teal = Color(0xFF00897B);
+
+  final List<Widget> _pages = const [
+    _HomeTab(),
+    DoctorsScreen(),
+    AgendaScreen(),
+    RappelsScreen(),
+    ChatScreen(),
+    ProfileScreen(),
+  ];
+
+  @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final navBg = isDark ? const Color(0xFF1F2937) : Colors.white;
+    final navShadow = isDark ? Colors.black54 : Colors.black12;
+
+    final navItems = [
+      {'icon': Icons.home_rounded, 'label': l.home},
+      {'icon': Icons.search, 'label': l.doctorsNavLabel},      // ← Search icon as requested
+      {'icon': Icons.calendar_month_outlined, 'label': l.agenda},
+      {'icon': Icons.notifications_outlined, 'label': l.rappels},
+      {'icon': Icons.chat_bubble_outline, 'label': l.chat},
+      {'icon': Icons.person_outline, 'label': l.profile},
+    ];
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: navBg,
+          boxShadow: [
+            BoxShadow(
+              color: navShadow,
+              blurRadius: 16,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: SizedBox(
+            height: 64,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(navItems.length, (i) {
+                final active = _selectedIndex == i;
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedIndex = i),
+                  behavior: HitTestBehavior.opaque,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: active
+                                ? _teal.withOpacity(0.12)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            navItems[i]['icon'] as IconData,
+                            color: active ? _teal : (isDark ? Colors.white38 : Colors.black38),
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          navItems[i]['label'] as String,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: active
+                                ? FontWeight.w700
+                                : FontWeight.w400,
+                            color: active
+                                ? _teal
+                                : (isDark ? Colors.white38 : Colors.black38),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Home Tab Content (original home screen content)
+// ─────────────────────────────────────────────────────────────
+class _HomeTab extends StatelessWidget {
+  const _HomeTab();
+
+  static const _teal = Color(0xFF00897B);
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF111827) : const Color(0xFFF5F7FA);
+    final cardColor = isDark ? const Color(0xFF1F2937) : Colors.white;
+    final textPrimary = isDark ? Colors.white : Colors.black87;
+    final textSecondary = isDark ? Colors.white60 : Colors.black54;
+    final textHint = isDark ? Colors.white38 : Colors.black38;
+
+    return Scaffold(
+      backgroundColor: bgColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -15,28 +145,27 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              _buildHeader(context),
+              _buildHeader(context, l, textPrimary, textSecondary),
               const SizedBox(height: 20),
-              _buildSearchBar(context),
+              _buildSearchBar(context, l, cardColor, textHint),
               const SizedBox(height: 20),
-              _buildUpcomingCard(context),
+              _buildUpcomingCard(context, l),
               const SizedBox(height: 24),
-              _buildQuickActions(context),
+              _buildQuickActions(context, l, cardColor, textSecondary),
               const SizedBox(height: 24),
-              _buildTodaysMeds(context),
+              _buildTodaysMeds(context, l, cardColor, textPrimary, textSecondary, isDark),
               const SizedBox(height: 24),
-              _buildVitalsSection(context),
+              _buildVitalsSection(context, l, cardColor, textPrimary, textSecondary, isDark),
               const SizedBox(height: 24),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(context),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
+  Widget _buildHeader(BuildContext context, AppLocalizations l,
+      Color textPrimary, Color textSecondary) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -45,15 +174,15 @@ class HomeScreen extends StatelessWidget {
           children: [
             Text(
               l.welcomeBack,
-              style: const TextStyle(fontSize: 14, color: Colors.black54),
+              style: TextStyle(fontSize: 14, color: textSecondary),
             ),
             const SizedBox(height: 2),
             Text(
               l.userName,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
-                color: Colors.black87,
+                color: textPrimary,
               ),
             ),
           ],
@@ -62,7 +191,7 @@ class HomeScreen extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 24,
-              backgroundColor: Colors.grey[300],
+              backgroundColor: Colors.grey[400],
               child: const Icon(Icons.person, color: Colors.white, size: 28),
             ),
             Positioned(
@@ -84,12 +213,12 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchBar(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
+  Widget _buildSearchBar(BuildContext context, AppLocalizations l,
+      Color cardColor, Color textHint) {
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -102,19 +231,18 @@ class HomeScreen extends StatelessWidget {
       child: Row(
         children: [
           const SizedBox(width: 16),
-          const Icon(Icons.search, color: Colors.black38, size: 20),
+          Icon(Icons.search, color: textHint, size: 20),
           const SizedBox(width: 10),
           Text(
             l.searchHint,
-            style: const TextStyle(color: Colors.black38, fontSize: 14),
+            style: TextStyle(color: textHint, fontSize: 14),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildUpcomingCard(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
+  Widget _buildUpcomingCard(BuildContext context, AppLocalizations l) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -140,10 +268,7 @@ class HomeScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -165,11 +290,8 @@ class HomeScreen extends StatelessWidget {
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
-                  Icons.videocam_outlined,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                child: const Icon(Icons.videocam_outlined,
+                    color: Colors.white, size: 20),
               ),
             ],
           ),
@@ -185,10 +307,7 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             l.doctorSpecialty,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.85),
-              fontSize: 13,
-            ),
+            style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 13),
           ),
           const SizedBox(height: 16),
           Container(
@@ -199,11 +318,8 @@ class HomeScreen extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(
-                  Icons.calendar_today_outlined,
-                  color: Colors.white,
-                  size: 16,
-                ),
+                const Icon(Icons.calendar_today_outlined,
+                    color: Colors.white, size: 16),
                 const SizedBox(width: 8),
                 Text(
                   l.today,
@@ -219,11 +335,8 @@ class HomeScreen extends StatelessWidget {
                   height: 14,
                   color: Colors.white.withOpacity(0.4),
                 ),
-                const Icon(
-                  Icons.access_time_outlined,
-                  color: Colors.white,
-                  size: 16,
-                ),
+                const Icon(Icons.access_time_outlined,
+                    color: Colors.white, size: 16),
                 const SizedBox(width: 8),
                 Text(
                   l.appointmentTime,
@@ -241,8 +354,8 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
+  Widget _buildQuickActions(BuildContext context, AppLocalizations l,
+      Color cardColor, Color textSecondary) {
     final actions = [
       {
         'icon': Icons.medical_services_outlined,
@@ -291,9 +404,9 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               action['label'] as String,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: Colors.black54,
+                color: textSecondary,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -303,8 +416,8 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTodaysMeds(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
+  Widget _buildTodaysMeds(BuildContext context, AppLocalizations l,
+      Color cardColor, Color textPrimary, Color textSecondary, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -313,17 +426,17 @@ class HomeScreen extends StatelessWidget {
           children: [
             Text(
               l.todaysMeds,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
-                color: Colors.black87,
+                color: textPrimary,
               ),
             ),
             Text(
               l.seeAll,
               style: const TextStyle(
                 fontSize: 13,
-                color: Color(0xFF00897B),
+                color: _teal,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -331,6 +444,9 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         _buildMedTile(
+          cardColor: cardColor,
+          textSecondary: textSecondary,
+          isDark: isDark,
           icon: Icons.check_box_outlined,
           iconColor: Colors.black26,
           name: l.vitaminD3,
@@ -342,13 +458,16 @@ class HomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _buildMedTile(
+          cardColor: cardColor,
+          textSecondary: textSecondary,
+          isDark: isDark,
           icon: Icons.medication_outlined,
-          iconColor: const Color(0xFF00897B),
+          iconColor: _teal,
           name: l.amoxicillin,
           subtitle: l.amoxicillinSubtitle,
           time: '2:00 PM',
-          timeColor: const Color(0xFF00897B),
-          accent: const Color(0xFF00897B),
+          timeColor: _teal,
+          accent: _teal,
           taken: false,
         ),
       ],
@@ -356,6 +475,9 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildMedTile({
+    required Color cardColor,
+    required Color textSecondary,
+    required bool isDark,
     required IconData icon,
     required Color iconColor,
     required String name,
@@ -368,14 +490,14 @@ class HomeScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(14),
         border: accent != null
             ? Border(left: BorderSide(color: accent, width: 3))
             : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -387,7 +509,9 @@ class HomeScreen extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: taken ? Colors.grey[100] : const Color(0xFFEEF8F7),
+              color: taken
+                  ? (isDark ? Colors.white10 : Colors.grey[100])
+                  : const Color(0xFFEEF8F7),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: iconColor, size: 22),
@@ -409,7 +533,7 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(color: Colors.black45, fontSize: 12),
+                  style: TextStyle(color: textSecondary, fontSize: 12),
                 ),
               ],
             ),
@@ -427,17 +551,17 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildVitalsSection(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
+  Widget _buildVitalsSection(BuildContext context, AppLocalizations l,
+      Color cardColor, Color textPrimary, Color textSecondary, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           l.myVitals,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w700,
-            color: Colors.black87,
+            color: textPrimary,
           ),
         ),
         const SizedBox(height: 14),
@@ -445,6 +569,10 @@ class HomeScreen extends StatelessWidget {
           children: [
             Expanded(
               child: _buildVitalCard(
+                cardColor: cardColor,
+                textPrimary: textPrimary,
+                textSecondary: textSecondary,
+                isDark: isDark,
                 icon: Icons.favorite,
                 iconColor: Colors.red,
                 bgColor: const Color(0xFFFFF0F0),
@@ -457,6 +585,10 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _buildVitalCard(
+                cardColor: cardColor,
+                textPrimary: textPrimary,
+                textSecondary: textSecondary,
+                isDark: isDark,
                 icon: Icons.nightlight_round,
                 iconColor: const Color(0xFF7986CB),
                 bgColor: const Color(0xFFEEF0FB),
@@ -473,6 +605,10 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildVitalCard({
+    required Color cardColor,
+    required Color textPrimary,
+    required Color textSecondary,
+    required bool isDark,
     required IconData icon,
     required Color iconColor,
     required Color bgColor,
@@ -484,11 +620,11 @@ class HomeScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -511,7 +647,7 @@ class HomeScreen extends StatelessWidget {
               ),
               Text(
                 sub,
-                style: const TextStyle(fontSize: 11, color: Colors.black38),
+                style: TextStyle(fontSize: 11, color: textSecondary),
               ),
             ],
           ),
@@ -521,10 +657,10 @@ class HomeScreen extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black87,
+                  color: textPrimary,
                 ),
               ),
               const SizedBox(width: 4),
@@ -532,7 +668,7 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 3),
                 child: Text(
                   unit,
-                  style: const TextStyle(fontSize: 12, color: Colors.black45),
+                  style: TextStyle(fontSize: 12, color: textSecondary),
                 ),
               ),
             ],
@@ -540,75 +676,9 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(fontSize: 12, color: Colors.black45),
+            style: TextStyle(fontSize: 12, color: textSecondary),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBottomNav(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    final items = [
-      {'icon': Icons.home_rounded, 'label': l.home, 'active': true},
-      {
-        'icon': Icons.medical_services_outlined,
-        'label': l.doctors,
-        'active': false,
-      },
-      {
-        'icon': Icons.calendar_month_outlined,
-        'label': l.appts,
-        'active': false,
-      },
-      {
-        'icon': Icons.folder_outlined,
-        'label': l.records,
-        'active': false,
-      },
-      {
-        'icon': Icons.medication_outlined,
-        'label': l.meds,
-        'active': false,
-      },
-    ];
-
-    return Container(
-      height: 72,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.07),
-            blurRadius: 16,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: items.map((item) {
-          final active = item['active'] as bool;
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                item['icon'] as IconData,
-                color: active ? const Color(0xFF00897B) : Colors.black38,
-                size: 24,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                item['label'] as String,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: active ? FontWeight.w600 : FontWeight.w400,
-                  color: active ? const Color(0xFF00897B) : Colors.black38,
-                ),
-              ),
-            ],
-          );
-        }).toList(),
       ),
     );
   }

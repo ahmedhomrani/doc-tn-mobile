@@ -537,6 +537,342 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Username'**
   String get usernameLabel;
+
+  /// No description provided for @findDoctors.
+  ///
+  /// In en, this message translates to:
+  /// **'Find Doctors'**
+  String get findDoctors;
+
+  /// No description provided for @bookBestSpecialists.
+  ///
+  /// In en, this message translates to:
+  /// **'Book the best specialists'**
+  String get bookBestSpecialists;
+
+  /// No description provided for @searchDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Search doctor, specialty...'**
+  String get searchDoctor;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @cardiologist.
+  ///
+  /// In en, this message translates to:
+  /// **'Cardiologist'**
+  String get cardiologist;
+
+  /// No description provided for @generalPhysician.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get generalPhysician;
+
+  /// No description provided for @dermatologist.
+  ///
+  /// In en, this message translates to:
+  /// **'Dermatologist'**
+  String get dermatologist;
+
+  /// No description provided for @availableToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Today'**
+  String get availableToday;
+
+  /// No description provided for @tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get tomorrow;
+
+  /// No description provided for @nextSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get nextSlot;
+
+  /// No description provided for @agenda.
+  ///
+  /// In en, this message translates to:
+  /// **'Agenda'**
+  String get agenda;
+
+  /// No description provided for @appointments.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointments'**
+  String get appointments;
+
+  /// No description provided for @manageVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your medical visits'**
+  String get manageVisits;
+
+  /// No description provided for @past.
+  ///
+  /// In en, this message translates to:
+  /// **'Past'**
+  String get past;
+
+  /// No description provided for @confirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get confirmed;
+
+  /// No description provided for @pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pending;
+
+  /// No description provided for @videoCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Video Call'**
+  String get videoCall;
+
+  /// No description provided for @inPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'In-Person'**
+  String get inPerson;
+
+  /// No description provided for @reminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get reminder;
+
+  /// No description provided for @join.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get join;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @newAppointment.
+  ///
+  /// In en, this message translates to:
+  /// **'+ New Appointment'**
+  String get newAppointment;
+
+  /// No description provided for @rappels.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get rappels;
+
+  /// No description provided for @reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get reminders;
+
+  /// No description provided for @stayOnTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay on track'**
+  String get stayOnTrack;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Add'**
+  String get add;
+
+  /// No description provided for @activeMeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Active\nMeds'**
+  String get activeMeds;
+
+  /// No description provided for @activeAppts.
+  ///
+  /// In en, this message translates to:
+  /// **'Active\nAppts'**
+  String get activeAppts;
+
+  /// No description provided for @totalActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Total\nActive'**
+  String get totalActive;
+
+  /// No description provided for @visits.
+  ///
+  /// In en, this message translates to:
+  /// **'Visits'**
+  String get visits;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @bloodPressure.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood Pressure'**
+  String get bloodPressure;
+
+  /// No description provided for @bloodSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood Sugar'**
+  String get bloodSugar;
+
+  /// No description provided for @cholesterol.
+  ///
+  /// In en, this message translates to:
+  /// **'Cholesterol'**
+  String get cholesterol;
+
+  /// No description provided for @onceDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Once daily'**
+  String get onceDaily;
+
+  /// No description provided for @twiceDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Twice daily'**
+  String get twiceDaily;
+
+  /// No description provided for @messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get messages;
+
+  /// No description provided for @searchMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Search messages...'**
+  String get searchMessages;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
+
+  /// No description provided for @profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
+  /// No description provided for @darkMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get darkMode;
+
+  /// No description provided for @languageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageLabel;
+
+  /// No description provided for @health.
+  ///
+  /// In en, this message translates to:
+  /// **'HEALTH'**
+  String get health;
+
+  /// No description provided for @healthGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Goals'**
+  String get healthGoals;
+
+  /// No description provided for @healthIndicators.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Indicators'**
+  String get healthIndicators;
+
+  /// No description provided for @account.
+  ///
+  /// In en, this message translates to:
+  /// **'ACCOUNT'**
+  String get account;
+
+  /// No description provided for @personalInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Information'**
+  String get personalInfo;
+
+  /// No description provided for @emergencyContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Contact'**
+  String get emergencyContact;
+
+  /// No description provided for @insurance.
+  ///
+  /// In en, this message translates to:
+  /// **'Insurance'**
+  String get insurance;
+
+  /// No description provided for @preferences.
+  ///
+  /// In en, this message translates to:
+  /// **'PREFERENCES'**
+  String get preferences;
+
+  /// No description provided for @notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// No description provided for @helpSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & Support'**
+  String get helpSupport;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logout;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Soon'**
+  String get comingSoon;
+
+  /// No description provided for @appVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'MediCare App v1.0.0'**
+  String get appVersion;
+
+  /// No description provided for @doctorsNavLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Médecins'**
+  String get doctorsNavLabel;
 }
 
 class _AppLocalizationsDelegate

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../l10n/app_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
@@ -18,8 +18,14 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
   String? _errorMessage;
 
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId:
+        '195888215276-uuo0gfsmgj6h1n8epqai5e68eqii0oa9.apps.googleusercontent.com',
+    scopes: ['email', 'profile', 'openid'],
+  );
   @override
   void dispose() {
     _usernameController.dispose();
@@ -43,10 +49,60 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      await AuthService.login(
-        usernameOrEmail: username,
-        password: password,
-      );
+      await AuthService.login(usernameOrEmail: username, password: password);
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (_) => false,
+        );
+      }
+    } on AuthException catch (e) {
+      if (mounted)
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.message;
+        });
+    } catch (_) {
+      if (mounted)
+        setState(() {
+          _isLoading = false;
+          _errorMessage = AppLocalizations.of(context)!.errorServer;
+        });
+    }
+  }
+
+  Future<void> _googleLogin() async {
+    setState(() {
+      _isGoogleLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // Sign out first to force account picker to show
+      await _googleSignIn.signOut();
+
+      final GoogleSignInAccount? account = await _googleSignIn.signIn();
+
+      if (account == null) {
+        // User cancelled
+        setState(() => _isGoogleLoading = false);
+        return;
+      }
+
+      final GoogleSignInAuthentication auth = await account.authentication;
+      final String? idToken = auth.idToken;
+
+      debugPrint('idToken: $idToken'); // check if token is received
+
+      if (idToken == null) {
+        setState(() {
+          _isGoogleLoading = false;
+          _errorMessage = 'Failed to get Google token.';
+        });
+        return;
+      }
+
+      await AuthService.googleLogin(idToken: idToken);
 
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
@@ -55,19 +111,18 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } on AuthException catch (e) {
-      if (mounted) {
+      if (mounted)
         setState(() {
-          _isLoading = false;
+          _isGoogleLoading = false;
           _errorMessage = e.message;
         });
-      }
-    } catch (_) {
-      if (mounted) {
+    } catch (e) {
+      debugPrint('Google error: $e'); // print exact error
+      if (mounted)
         setState(() {
-          _isLoading = false;
-          _errorMessage = l.errorServer;
+          _isGoogleLoading = false;
+          _errorMessage = 'Google sign-in failed: $e';
         });
-      }
     }
   }
 
@@ -79,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: const Color(0xFFF5F7FA),
       body: Column(
         children: [
-          // ── Teal header ──────────────────────────────────────────
+          // Header
           Container(
             width: double.infinity,
             padding: const EdgeInsets.only(
@@ -135,19 +190,20 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
 
-          // ── Form ─────────────────────────────────────────────────
+          // Form
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Error banner
                   if (_errorMessage != null) ...[
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFEBEE),
                         borderRadius: BorderRadius.circular(10),
@@ -155,8 +211,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.error_outline,
-                              color: Color(0xFFC62828), size: 18),
+                          const Icon(
+                            Icons.error_outline,
+                            color: Color(0xFFC62828),
+                            size: 18,
+                          ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
@@ -201,7 +260,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  // Forgot password
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
@@ -281,18 +339,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 20),
 
-                  // Social buttons
-                  Row(
-                    children: [
-                      Expanded(child: _buildSocialButton('🔵', 'Google')),
-                      const SizedBox(width: 14),
-                      Expanded(child: _buildSocialButton('🍎', 'Apple')),
-                    ],
-                  ),
+                  // Google button only
+                  _buildGoogleButton(),
 
                   const SizedBox(height: 32),
 
-                  // No account
                   Center(
                     child: RichText(
                       text: TextSpan(
@@ -330,8 +381,9 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildSocialButton(String emoji, String label) {
+  Widget _buildGoogleButton() {
     return Container(
+      width: double.infinity,
       height: 52,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -349,20 +401,36 @@ class _LoginScreenState extends State<LoginScreen> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () {},
+          onTap: _isGoogleLoading ? null : _googleLogin,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(emoji, style: const TextStyle(fontSize: 20)),
-              const SizedBox(width: 10),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+              if (_isGoogleLoading)
+                const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Color(0xFF00897B),
+                  ),
+                )
+              else ...[
+                // Official Google "G" logo using colored squares
+                SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CustomPaint(painter: _GoogleLogoPainter()),
                 ),
-              ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Continue with Google',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -425,8 +493,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide:
-                const BorderSide(color: Color(0xFF00897B), width: 1.5),
+            borderSide: const BorderSide(color: Color(0xFF00897B), width: 1.5),
           ),
           filled: true,
           fillColor: Colors.white,
@@ -438,4 +505,66 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+}
+
+// Draws the official Google "G" logo
+class _GoogleLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..style = PaintingStyle.fill;
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+
+    // Draw circle segments
+    // Blue
+    paint.color = const Color(0xFF4285F4);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -0.52,
+      1.57,
+      true,
+      paint,
+    );
+    // Green
+    paint.color = const Color(0xFF34A853);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      1.05,
+      1.57,
+      true,
+      paint,
+    );
+    // Yellow
+    paint.color = const Color(0xFFFBBC05);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      2.62,
+      1.05,
+      true,
+      paint,
+    );
+    // Red
+    paint.color = const Color(0xFFEA4335);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -1.57,
+      1.05,
+      true,
+      paint,
+    );
+
+    // White center
+    paint.color = Colors.white;
+    canvas.drawCircle(center, radius * 0.6, paint);
+
+    // Blue bar (the horizontal part of G)
+    paint.color = const Color(0xFF4285F4);
+    canvas.drawRect(
+      Rect.fromLTWH(center.dx, center.dy - radius * 0.15, radius, radius * 0.3),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

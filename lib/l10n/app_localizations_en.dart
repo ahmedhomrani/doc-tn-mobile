@@ -228,4 +228,172 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get usernameLabel => 'Username';
+
+  @override
+  String get findDoctors => 'Find Doctors';
+
+  @override
+  String get bookBestSpecialists => 'Book the best specialists';
+
+  @override
+  String get searchDoctor => 'Search doctor, specialty...';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get cardiologist => 'Cardiologist';
+
+  @override
+  String get generalPhysician => 'General';
+
+  @override
+  String get dermatologist => 'Dermatologist';
+
+  @override
+  String get availableToday => 'Available Today';
+
+  @override
+  String get tomorrow => 'Tomorrow';
+
+  @override
+  String get nextSlot => 'Next';
+
+  @override
+  String get agenda => 'Agenda';
+
+  @override
+  String get appointments => 'Appointments';
+
+  @override
+  String get manageVisits => 'Manage your medical visits';
+
+  @override
+  String get past => 'Past';
+
+  @override
+  String get confirmed => 'Confirmed';
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get videoCall => 'Video Call';
+
+  @override
+  String get inPerson => 'In-Person';
+
+  @override
+  String get reminder => 'Reminder';
+
+  @override
+  String get join => 'Join';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get newAppointment => '+ New Appointment';
+
+  @override
+  String get rappels => 'Reminders';
+
+  @override
+  String get reminders => 'Reminders';
+
+  @override
+  String get stayOnTrack => 'Stay on track';
+
+  @override
+  String get add => '+ Add';
+
+  @override
+  String get activeMeds => 'Active\nMeds';
+
+  @override
+  String get activeAppts => 'Active\nAppts';
+
+  @override
+  String get totalActive => 'Total\nActive';
+
+  @override
+  String get visits => 'Visits';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get bloodPressure => 'Blood Pressure';
+
+  @override
+  String get bloodSugar => 'Blood Sugar';
+
+  @override
+  String get cholesterol => 'Cholesterol';
+
+  @override
+  String get onceDaily => 'Once daily';
+
+  @override
+  String get twiceDaily => 'Twice daily';
+
+  @override
+  String get messages => 'Messages';
+
+  @override
+  String get searchMessages => 'Search messages...';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get darkMode => 'Dark Mode';
+
+  @override
+  String get languageLabel => 'Language';
+
+  @override
+  String get health => 'HEALTH';
+
+  @override
+  String get healthGoals => 'Health Goals';
+
+  @override
+  String get healthIndicators => 'Health Indicators';
+
+  @override
+  String get account => 'ACCOUNT';
+
+  @override
+  String get personalInfo => 'Personal Information';
+
+  @override
+  String get emergencyContact => 'Emergency Contact';
+
+  @override
+  String get insurance => 'Insurance';
+
+  @override
+  String get preferences => 'PREFERENCES';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get helpSupport => 'Help & Support';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get comingSoon => 'Soon';
+
+  @override
+  String get appVersion => 'MediCare App v1.0.0';
+
+  @override
+  String get doctorsNavLabel => 'Médecins';
 }
