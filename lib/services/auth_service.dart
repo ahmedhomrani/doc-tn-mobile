@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'base_service.dart';
 
 class AuthException implements Exception {
   final String message;
@@ -43,8 +44,9 @@ class AuthService {
     }
 
     if (response.statusCode == 200) {
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
       final token = _extractToken(response.body);
-      await _saveSession(token);
+      await _saveSession(token, body);
       return token;
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       throw const AuthException('Invalid username or password.');
@@ -91,8 +93,9 @@ class AuthService {
     }
 
     if (response.statusCode == 200 || response.statusCode == 201) {
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
       final token = _extractToken(response.body);
-      await _saveSession(token);
+      await _saveSession(token, body);
       return token;
     } else if (response.statusCode == 409) {
       throw const AuthException('An account with this email already exists.');
@@ -125,8 +128,9 @@ class AuthService {
     }
 
     if (response.statusCode == 200) {
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
       final token = _extractToken(response.body);
-      await _saveSession(token);
+      await _saveSession(token, body);
       return token;
     } else {
       _throwFromBody(response);
@@ -155,11 +159,25 @@ class AuthService {
     }
   }
 
-  static Future<void> _saveSession(String token) async {
+  static Future<void> _saveSession(String token, [Map<String, dynamic>? body]) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('is_logged_in', true);
     if (token.isNotEmpty) {
       await prefs.setString('auth_token', token);
+    }
+    // Persist full user profile so home/profile screens can read it
+    if (body != null) {
+      final firstName = (body['firstName'] ?? '').toString();
+      final lastName  = (body['lastName']  ?? '').toString();
+      final fullName  = '$firstName $lastName'.trim();
+      await SessionStore.saveSession(
+        token:    token,
+        userId:   (body['id'] as num?)?.toInt() ?? 0,
+        role:     (body['role'] ?? '').toString(),
+        email:    (body['email'] ?? '').toString(),
+        fullName: fullName.isNotEmpty ? fullName : (body['username'] ?? '').toString(),
+        imageUrl: body['imageUrl']?.toString(),
+      );
     }
   }
 

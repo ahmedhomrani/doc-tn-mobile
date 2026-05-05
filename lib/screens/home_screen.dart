@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
+import '../services/socket_service.dart';
+import '../services/base_service.dart';
 import 'doctors_screen.dart';
 import 'agenda_screen.dart';
 import 'rappels_screen.dart';
 import 'chat_screen.dart';
+import 'notifications_screen.dart';
 import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,32 +19,74 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  int _unreadMessages = 0;
+  int _unreadNotifications = 0;
+  StreamSubscription<SocketChatMessage>? _msgSub;
+  StreamSubscription<SocketNotification>? _notifSub;
 
-  static const _teal = Color(0xFF00897B);
+  static const _teal = Color(0xFF1A9BE8);
 
-  final List<Widget> _pages = const [
-    _HomeTab(),
-    DoctorsScreen(),
-    AgendaScreen(),
-    RappelsScreen(),
-    ChatScreen(),
-    ProfileScreen(),
+  void _goToDoctors() => setState(() => _selectedIndex = 1);
+
+  late final List<Widget> _pages = [
+    const _HomeTab(),
+    const DoctorsScreen(),
+    AgendaScreen(onNewAppointment: _goToDoctors),
+    const RappelsScreen(),
+    const ChatScreen(),
+    const NotificationsScreen(),
+    const ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _initSocket();
+  }
+
+  Future<void> _initSocket() async {
+    final userId = await SessionStore.getUserId();
+    final token = await SessionStore.getToken();
+    if (userId != null && token != null) {
+      await SocketService.instance.connect(userId, token);
+    }
+    _msgSub = SocketService.instance.onMessage.listen((msg) {
+      if (!mounted) return;
+      if (_selectedIndex != 4) {
+        setState(() => _unreadMessages++);
+      }
+    });
+    _notifSub = SocketService.instance.onNotification.listen((notif) {
+      if (!mounted) return;
+      if (_selectedIndex != 5) {
+        setState(() => _unreadNotifications++);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _msgSub?.cancel();
+    _notifSub?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final navBg = isDark ? const Color(0xFF1F2937) : Colors.white;
+    final navBg = isDark ? const Color(0xFF112240) : Colors.white;
     final navShadow = isDark ? Colors.black54 : Colors.black12;
 
+    // index 4 = Chat, index 5 = Notifications
     final navItems = [
-      {'icon': Icons.home_rounded, 'label': l.home},
-      {'icon': Icons.search, 'label': l.doctorsNavLabel},      // ← Search icon as requested
-      {'icon': Icons.calendar_month_outlined, 'label': l.agenda},
-      {'icon': Icons.notifications_outlined, 'label': l.rappels},
-      {'icon': Icons.chat_bubble_outline, 'label': l.chat},
-      {'icon': Icons.person_outline, 'label': l.profile},
+      {'icon': Icons.home_rounded,           'label': l.home,           'badge': 0},
+      {'icon': Icons.search,                 'label': l.doctorsNavLabel,'badge': 0},
+      {'icon': Icons.calendar_month_outlined,'label': l.agenda,         'badge': 0},
+      {'icon': Icons.alarm_outlined,         'label': l.rappels,        'badge': 0},
+      {'icon': Icons.chat_bubble_outline,    'label': l.chat,           'badge': _unreadMessages},
+      {'icon': Icons.notifications_outlined, 'label': 'Alertes',        'badge': _unreadNotifications},
+      {'icon': Icons.person_outline,         'label': l.profile,        'badge': 0},
     ];
 
     return Scaffold(
@@ -51,13 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: navBg,
-          boxShadow: [
-            BoxShadow(
-              color: navShadow,
-              blurRadius: 16,
-              offset: const Offset(0, -4),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: navShadow, blurRadius: 16, offset: const Offset(0, -4))],
         ),
         child: SafeArea(
           child: SizedBox(
@@ -66,42 +106,61 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(navItems.length, (i) {
                 final active = _selectedIndex == i;
+                final badge = navItems[i]['badge'] as int;
                 return GestureDetector(
-                  onTap: () => setState(() => _selectedIndex = i),
+                  onTap: () {
+                    setState(() {
+                      _selectedIndex = i;
+                      if (i == 4) _unreadMessages = 0;
+                      if (i == 5) _unreadNotifications = 0;
+                    });
+                  },
                   behavior: HitTestBehavior.opaque,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: active
-                                ? _teal.withOpacity(0.12)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            navItems[i]['icon'] as IconData,
-                            color: active ? _teal : (isDark ? Colors.white38 : Colors.black38),
-                            size: 22,
-                          ),
+                        Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: active ? _teal.withOpacity(0.12) : Colors.transparent,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                navItems[i]['icon'] as IconData,
+                                color: active ? _teal : (isDark ? Colors.white38 : Colors.black38),
+                                size: 22,
+                              ),
+                            ),
+                            if (badge > 0)
+                              Positioned(
+                                right: -2, top: -2,
+                                child: Container(
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
+                                  constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                                  child: Text(
+                                    badge > 9 ? '9+' : '$badge',
+                                    style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                         const SizedBox(height: 2),
                         Text(
                           navItems[i]['label'] as String,
                           style: TextStyle(
                             fontSize: 10,
-                            fontWeight: active
-                                ? FontWeight.w700
-                                : FontWeight.w400,
-                            color: active
-                                ? _teal
-                                : (isDark ? Colors.white38 : Colors.black38),
+                            fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+                            color: active ? _teal : (isDark ? Colors.white38 : Colors.black38),
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -119,19 +178,48 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Home Tab Content (original home screen content)
+// Home Tab Content
 // ─────────────────────────────────────────────────────────────
-class _HomeTab extends StatelessWidget {
+class _HomeTab extends StatefulWidget {
   const _HomeTab();
 
-  static const _teal = Color(0xFF00897B);
+  @override
+  State<_HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<_HomeTab> {
+  static const _teal = Color(0xFF1A9BE8);
+
+  // Meds: true = taken (checked/disabled), false = pending
+  final List<bool> _medTaken = [true, false];
+
+  // Real user data from session
+  String _displayName = '';
+  String? _imageUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSession();
+  }
+
+  Future<void> _loadSession() async {
+    final name = await SessionStore.getFullName();
+    final img  = await SessionStore.getImageUrl();
+    if (mounted) {
+      setState(() {
+        _displayName = name ?? '';
+        _imageUrl    = img;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? const Color(0xFF111827) : const Color(0xFFF5F7FA);
-    final cardColor = isDark ? const Color(0xFF1F2937) : Colors.white;
+    final bgColor = isDark ? const Color(0xFF0D1B2E) : const Color(0xFFF0F7FF);
+    final cardColor = isDark ? const Color(0xFF112240) : Colors.white;
     final textPrimary = isDark ? Colors.white : Colors.black87;
     final textSecondary = isDark ? Colors.white60 : Colors.black54;
     final textHint = isDark ? Colors.white38 : Colors.black38;
@@ -166,48 +254,48 @@ class _HomeTab extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context, AppLocalizations l,
       Color textPrimary, Color textSecondary) {
+    // Resolve display name: session name → localization fallback
+    final name = _displayName.isNotEmpty ? _displayName : l.userName;
+    // Initials for avatar fallback
+    final parts = name.trim().split(' ');
+    final initials = parts.length >= 2
+        ? '${parts.first[0]}${parts.last[0]}'.toUpperCase()
+        : name.substring(0, name.length.clamp(1, 2)).toUpperCase();
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              l.welcomeBack,
-              style: TextStyle(fontSize: 14, color: textSecondary),
-            ),
+            Text(l.welcomeBack, style: TextStyle(fontSize: 14, color: textSecondary)),
             const SizedBox(height: 2),
             Text(
-              l.userName,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: textPrimary,
-              ),
+              name,
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: textPrimary),
             ),
           ],
         ),
-        Stack(
-          children: [
-            CircleAvatar(
-              radius: 24,
-              backgroundColor: Colors.grey[400],
-              child: const Icon(Icons.person, color: Colors.white, size: 28),
-            ),
-            Positioned(
-              right: 0,
-              top: 0,
-              child: Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 1.5),
+        // Avatar: real photo → initials
+        CircleAvatar(
+          radius: 24,
+          backgroundColor: const Color(0xFF1A9BE8).withOpacity(0.15),
+          child: _imageUrl != null && _imageUrl!.isNotEmpty
+              ? ClipOval(
+                  child: Image.network(
+                    _imageUrl!,
+                    width: 48, height: 48,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Text(
+                      initials,
+                      style: const TextStyle(color: Color(0xFF1A9BE8), fontWeight: FontWeight.w700, fontSize: 16),
+                    ),
+                  ),
+                )
+              : Text(
+                  initials,
+                  style: const TextStyle(color: Color(0xFF1A9BE8), fontWeight: FontWeight.w700, fontSize: 16),
                 ),
-              ),
-            ),
-          ],
         ),
       ],
     );
@@ -248,14 +336,14 @@ class _HomeTab extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF00897B), Color(0xFF26A69A)],
+          colors: [Color(0xFF1A9BE8), Color(0xFF0B7FCC)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00897B).withOpacity(0.35),
+            color: const Color(0xFF1A9BE8).withOpacity(0.35),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -360,8 +448,8 @@ class _HomeTab extends StatelessWidget {
       {
         'icon': Icons.medical_services_outlined,
         'label': l.doctors,
-        'color': const Color(0xFF7986CB),
-        'bg': const Color(0xFFEEF0FB),
+        'color': const Color(0xFF1A9BE8),
+        'bg': const Color(0xFFE3F2FD),
       },
       {
         'icon': Icons.medication_outlined,
@@ -379,7 +467,7 @@ class _HomeTab extends StatelessWidget {
         'icon': Icons.chat_bubble_outline,
         'label': l.chat,
         'color': const Color(0xFF4DB6AC),
-        'bg': const Color(0xFFEEF8F7),
+        'bg': const Color(0xFFE3F2FD),
       },
     ];
 
@@ -418,6 +506,21 @@ class _HomeTab extends StatelessWidget {
 
   Widget _buildTodaysMeds(BuildContext context, AppLocalizations l,
       Color cardColor, Color textPrimary, Color textSecondary, bool isDark) {
+    final meds = [
+      {
+        'name': l.vitaminD3,
+        'subtitle': l.vitaminSubtitle,
+        'time': '8:00 AM',
+        'color': const Color(0xFF1A9BE8),
+      },
+      {
+        'name': l.amoxicillin,
+        'subtitle': l.amoxicillinSubtitle,
+        'time': '2:00 PM',
+        'color': const Color(0xFFBA68C8),
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -443,58 +546,48 @@ class _HomeTab extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 14),
-        _buildMedTile(
-          cardColor: cardColor,
-          textSecondary: textSecondary,
-          isDark: isDark,
-          icon: Icons.check_box_outlined,
-          iconColor: Colors.black26,
-          name: l.vitaminD3,
-          subtitle: l.vitaminSubtitle,
-          time: '8:00 AM',
-          timeColor: Colors.black45,
-          accent: null,
-          taken: true,
-        ),
-        const SizedBox(height: 10),
-        _buildMedTile(
-          cardColor: cardColor,
-          textSecondary: textSecondary,
-          isDark: isDark,
-          icon: Icons.medication_outlined,
-          iconColor: _teal,
-          name: l.amoxicillin,
-          subtitle: l.amoxicillinSubtitle,
-          time: '2:00 PM',
-          timeColor: _teal,
-          accent: _teal,
-          taken: false,
-        ),
+        ...List.generate(meds.length, (i) {
+          final med = meds[i];
+          return Padding(
+            padding: EdgeInsets.only(bottom: i < meds.length - 1 ? 10 : 0),
+            child: _buildMedTile(
+              cardColor: cardColor,
+              textPrimary: textPrimary,
+              textSecondary: textSecondary,
+              isDark: isDark,
+              name: med['name'] as String,
+              subtitle: med['subtitle'] as String,
+              time: med['time'] as String,
+              accentColor: med['color'] as Color,
+              taken: _medTaken[i],
+              onToggle: (val) => setState(() => _medTaken[i] = val),
+            ),
+          );
+        }),
       ],
     );
   }
 
   Widget _buildMedTile({
     required Color cardColor,
+    required Color textPrimary,
     required Color textSecondary,
     required bool isDark,
-    required IconData icon,
-    required Color iconColor,
     required String name,
     required String subtitle,
     required String time,
-    required Color timeColor,
-    Color? accent,
+    required Color accentColor,
     required bool taken,
+    required ValueChanged<bool> onToggle,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: accent != null
-            ? Border(left: BorderSide(color: accent, width: 3))
-            : null,
+        border: taken
+            ? null
+            : Border(left: BorderSide(color: accentColor, width: 3)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
@@ -503,53 +596,112 @@ class _HomeTab extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: taken
-                  ? (isDark ? Colors.white10 : Colors.grey[100])
-                  : const Color(0xFFEEF8F7),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: iconColor, size: 22),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => onToggle(!taken),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            child: Row(
               children: [
-                Text(
-                  name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                    color: taken ? Colors.black45 : Colors.black87,
-                    decoration: taken ? TextDecoration.lineThrough : null,
+                // Checkbox
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Checkbox(
+                    value: taken,
+                    onChanged: (v) => onToggle(v ?? false),
+                    activeColor: Colors.grey.shade400,
+                    checkColor: Colors.white,
+                    side: BorderSide(
+                      color: taken ? Colors.grey.shade400 : accentColor,
+                      width: 2,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: TextStyle(color: textSecondary, fontSize: 12),
+                const SizedBox(width: 12),
+                // Med icon
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: taken
+                        ? (isDark ? Colors.white10 : const Color(0xFFF2F2F2))
+                        : accentColor.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.medication_outlined,
+                    color: taken ? Colors.grey.shade400 : accentColor,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Name + subtitle
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 250),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: taken
+                              ? (isDark ? Colors.white30 : Colors.black38)
+                              : textPrimary,
+                          decoration: taken ? TextDecoration.lineThrough : null,
+                          decorationColor: Colors.grey.shade400,
+                        ),
+                        child: Text(name),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: taken
+                              ? (isDark ? Colors.white24 : Colors.black26)
+                              : textSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Time badge
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: taken
+                        ? (isDark ? Colors.white10 : const Color(0xFFF2F2F2))
+                        : accentColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    time,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: taken
+                          ? (isDark ? Colors.white30 : Colors.black38)
+                          : accentColor,
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
-          Text(
-            time,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: timeColor,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
+
 
   Widget _buildVitalsSection(BuildContext context, AppLocalizations l,
       Color cardColor, Color textPrimary, Color textSecondary, bool isDark) {

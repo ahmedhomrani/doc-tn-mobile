@@ -580,6 +580,12 @@ abstract class AppLocalizations {
   /// **'Dermatologist'**
   String get dermatologist;
 
+  /// No description provided for @dentist.
+  ///
+  /// In en, this message translates to:
+  /// **'Dentist'**
+  String get dentist;
+
   /// No description provided for @availableToday.
   ///
   /// In en, this message translates to:
@@ -871,8 +877,200 @@ abstract class AppLocalizations {
   /// No description provided for @doctorsNavLabel.
   ///
   /// In en, this message translates to:
-  /// **'Médecins'**
+  /// **'Doctors'**
   String get doctorsNavLabel;
+
+  /// No description provided for @piSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes saved successfully'**
+  String get piSaved;
+
+  /// No description provided for @piErrorSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save changes'**
+  String get piErrorSave;
+
+  /// No description provided for @piTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Information'**
+  String get piTitle;
+
+  /// No description provided for @piSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update your profile details'**
+  String get piSubtitle;
+
+  /// No description provided for @piSectionBasic.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic Information'**
+  String get piSectionBasic;
+
+  /// No description provided for @piFirstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First Name'**
+  String get piFirstName;
+
+  /// No description provided for @piLastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Name'**
+  String get piLastName;
+
+  /// No description provided for @piEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get piEmail;
+
+  /// No description provided for @piPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get piPhone;
+
+  /// No description provided for @piAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get piAddress;
+
+  /// No description provided for @piCity.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get piCity;
+
+  /// No description provided for @piPostalCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Postal Code'**
+  String get piPostalCode;
+
+  /// No description provided for @piSectionHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Information'**
+  String get piSectionHealth;
+
+  /// No description provided for @piAge.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get piAge;
+
+  /// No description provided for @piYears.
+  ///
+  /// In en, this message translates to:
+  /// **'years'**
+  String get piYears;
+
+  /// No description provided for @piWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get piWeight;
+
+  /// No description provided for @piKg.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get piKg;
+
+  /// No description provided for @piHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get piHeight;
+
+  /// No description provided for @piCm.
+  ///
+  /// In en, this message translates to:
+  /// **'cm'**
+  String get piCm;
+
+  /// No description provided for @piSectionMedical.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical History'**
+  String get piSectionMedical;
+
+  /// No description provided for @piMedicalHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical History'**
+  String get piMedicalHistory;
+
+  /// No description provided for @piAllergies.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergies'**
+  String get piAllergies;
+
+  /// No description provided for @piSectionEmergency.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Contact'**
+  String get piSectionEmergency;
+
+  /// No description provided for @piEmergencyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Name'**
+  String get piEmergencyName;
+
+  /// No description provided for @piEmergencyPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Phone'**
+  String get piEmergencyPhone;
+
+  /// No description provided for @piDob.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of Birth'**
+  String get piDob;
+
+  /// No description provided for @piGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get piGender;
+
+  /// No description provided for @piGenderMale.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get piGenderMale;
+
+  /// No description provided for @piGenderFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get piGenderFemale;
+
+  /// No description provided for @piBloodType.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood Type'**
+  String get piBloodType;
+
+  /// No description provided for @piSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get piSaving;
+
+  /// No description provided for @piSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get piSave;
 }
 
 class _AppLocalizationsDelegate

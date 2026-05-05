@@ -251,6 +251,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dermatologist => 'جلدية';
 
   @override
+  String get dentist => 'طب الأسنان';
+
+  @override
   String get availableToday => 'متاح اليوم';
 
   @override
@@ -396,4 +399,100 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get doctorsNavLabel => 'الأطباء';
+
+  @override
+  String get piSaved => 'تم حفظ التغييرات بنجاح';
+
+  @override
+  String get piErrorSave => 'فشل في حفظ التغييرات';
+
+  @override
+  String get piTitle => 'المعلومات الشخصية';
+
+  @override
+  String get piSubtitle => 'تحديث بيانات ملفك الشخصي';
+
+  @override
+  String get piSectionBasic => 'المعلومات الأساسية';
+
+  @override
+  String get piFirstName => 'الاسم الأول';
+
+  @override
+  String get piLastName => 'اسم العائلة';
+
+  @override
+  String get piEmail => 'البريد الإلكتروني';
+
+  @override
+  String get piPhone => 'رقم الهاتف';
+
+  @override
+  String get piAddress => 'العنوان';
+
+  @override
+  String get piCity => 'المدينة';
+
+  @override
+  String get piPostalCode => 'الرمز البريدي';
+
+  @override
+  String get piSectionHealth => 'المعلومات الصحية';
+
+  @override
+  String get piAge => 'العمر';
+
+  @override
+  String get piYears => 'سنة';
+
+  @override
+  String get piWeight => 'الوزن';
+
+  @override
+  String get piKg => 'كغ';
+
+  @override
+  String get piHeight => 'الطول';
+
+  @override
+  String get piCm => 'سم';
+
+  @override
+  String get piSectionMedical => 'التاريخ الطبي';
+
+  @override
+  String get piMedicalHistory => 'التاريخ الطبي';
+
+  @override
+  String get piAllergies => 'الحساسية';
+
+  @override
+  String get piSectionEmergency => 'جهة الاتصال في حالات الطوارئ';
+
+  @override
+  String get piEmergencyName => 'اسم جهة الاتصال';
+
+  @override
+  String get piEmergencyPhone => 'هاتف جهة الاتصال';
+
+  @override
+  String get piDob => 'تاريخ الميلاد';
+
+  @override
+  String get piGender => 'الجنس';
+
+  @override
+  String get piGenderMale => 'ذكر';
+
+  @override
+  String get piGenderFemale => 'أنثى';
+
+  @override
+  String get piBloodType => 'فصيلة الدم';
+
+  @override
+  String get piSaving => 'جارٍ الحفظ...';
+
+  @override
+  String get piSave => 'حفظ التغييرات';
 }

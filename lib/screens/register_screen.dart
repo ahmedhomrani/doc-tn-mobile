@@ -125,7 +125,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF00897B), Color(0xFF26A69A)],
+                colors: [Color(0xFF1A9BE8), Color(0xFF0B7FCC)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -321,12 +321,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           height: 24,
                           decoration: BoxDecoration(
                             color: _acceptedTerms
-                                ? const Color(0xFF00897B)
+                                ? const Color(0xFF1A9BE8)
                                 : Colors.white,
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(
                               color: _acceptedTerms
-                                  ? const Color(0xFF00897B)
+                                  ? const Color(0xFF1A9BE8)
                                   : Colors.black26,
                               width: 1.5,
                             ),
@@ -351,7 +351,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               TextSpan(
                                 text: l.termsOfUse,
                                 style: const TextStyle(
-                                  color: Color(0xFF00897B),
+                                  color: Color(0xFF1A9BE8),
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -361,7 +361,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               TextSpan(
                                 text: l.privacyPolicy,
                                 style: const TextStyle(
-                                  color: Color(0xFF00897B),
+                                  color: Color(0xFF1A9BE8),
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -381,7 +381,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _register,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00897B),
+                        backgroundColor: const Color(0xFF1A9BE8),
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -428,7 +428,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           TextSpan(
                             text: l.signIn,
                             style: const TextStyle(
-                              color: Color(0xFF00897B),
+                              color: Color(0xFF1A9BE8),
                               fontWeight: FontWeight.w700,
                             ),
                             recognizer: TapGestureRecognizer()
@@ -510,7 +510,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide:
-                const BorderSide(color: Color(0xFF00897B), width: 1.5),
+                const BorderSide(color: Color(0xFF1A9BE8), width: 1.5),
           ),
           filled: true,
           fillColor: Colors.white,

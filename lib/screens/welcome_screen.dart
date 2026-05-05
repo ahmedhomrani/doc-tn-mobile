@@ -23,7 +23,7 @@ class WelcomeScreen extends StatelessWidget {
               width: double.infinity,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF00897B), Color(0xFF26A69A)],
+                  colors: [Color(0xFF1A9BE8), Color(0xFF0B7FCC)],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -137,7 +137,7 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00897B),
+                        backgroundColor: const Color(0xFF1A9BE8),
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(

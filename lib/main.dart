@@ -68,17 +68,20 @@ class _MyAppState extends State<MyApp> {
     return const WelcomeScreen();
   }
 
-  static const _primaryColor = Color(0xFF00897B);
+  // Blue palette matching tabibi.tn
+  static const _primaryColor = Color(0xFF1A9BE8);
 
   ThemeData get _lightTheme => ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
       seedColor: _primaryColor,
       brightness: Brightness.light,
+      primary: _primaryColor,
+      secondary: const Color(0xFF0B7FCC),
     ),
-    scaffoldBackgroundColor: const Color(0xFFF5F7FA),
+    scaffoldBackgroundColor: const Color(0xFFF0F7FF),
     appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF00897B),
+      backgroundColor: Color(0xFF1A9BE8),
       foregroundColor: Colors.white,
       elevation: 0,
     ),
@@ -91,15 +94,17 @@ class _MyAppState extends State<MyApp> {
     colorScheme: ColorScheme.fromSeed(
       seedColor: _primaryColor,
       brightness: Brightness.dark,
+      primary: _primaryColor,
+      secondary: const Color(0xFF0B7FCC),
     ),
-    scaffoldBackgroundColor: const Color(0xFF111827),
+    scaffoldBackgroundColor: const Color(0xFF0D1B2E),
     appBarTheme: const AppBarTheme(
-      backgroundColor: Color(0xFF1F2937),
+      backgroundColor: Color(0xFF112240),
       foregroundColor: Colors.white,
       elevation: 0,
     ),
-    cardColor: const Color(0xFF1F2937),
-    dividerColor: const Color(0xFF374151),
+    cardColor: const Color(0xFF112240),
+    dividerColor: const Color(0xFF1E3A5F),
   );
 
   @override
