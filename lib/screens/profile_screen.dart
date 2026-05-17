@@ -8,7 +8,9 @@ import '../services/base_service.dart';
 import '../services/user_profile_service.dart';
 import 'language_selection_screen.dart';
 import 'personal_info_screen.dart';
+import 'emergency_contact_screen.dart';
 import 'welcome_screen.dart';
+import 'medicine_search_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -30,6 +32,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Held in memory after pick so we can show it immediately without waiting
   // for the remote URL to propagate.
   Uint8List? _localImageBytes;
+
+  String _medicineLabel(BuildContext context) {
+  switch (Localizations.localeOf(context).languageCode) {
+    case 'ar': return 'البحث عن دواء';
+    case 'fr': return 'Recherche de médicaments';
+    default:   return 'Medicine Search';
+  }
+}
 
   final _picker = ImagePicker();
   final _profileService = UserProfileService();
@@ -378,11 +388,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 8),
 
                     _buildSectionHeader(l.health, sectionHeaderColor),
-                    _buildCard(cardColor: cardColor, dividerColor: dividerColor, children: [
-                      _buildNavRow(icon: Icons.favorite_outline, label: l.healthGoals, textPrimary: textPrimary, onTap: () {}),
-                      Divider(color: dividerColor, height: 1),
-                      _buildNavRow(icon: Icons.show_chart_outlined, label: l.healthIndicators, textPrimary: textPrimary, onTap: () {}),
-                    ]),
+_buildCard(cardColor: cardColor, dividerColor: dividerColor, children: [
+  _buildNavRow(
+    icon: Icons.medication_outlined,
+    label: _medicineLabel(context),
+    textPrimary: textPrimary,
+    onTap: () => Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const MedicineSearchScreen()),
+    ),
+  ),
+  Divider(color: dividerColor, height: 1),
+  _buildNavRow(icon: Icons.favorite_outline, label: l.healthGoals, textPrimary: textPrimary, onTap: () {}),
+  Divider(color: dividerColor, height: 1),
+  _buildNavRow(icon: Icons.show_chart_outlined, label: l.healthIndicators, textPrimary: textPrimary, onTap: () {}),
+]),
                     const SizedBox(height: 8),
 
                     _buildSectionHeader(l.account, sectionHeaderColor),
@@ -391,7 +411,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const PersonalInfoScreen()));
                       }),
                       Divider(color: dividerColor, height: 1),
-                      _buildNavRow(icon: Icons.phone_outlined, label: l.emergencyContact, textPrimary: textPrimary, onTap: () {}),
+                      _buildNavRow(icon: Icons.phone_outlined, label: l.emergencyContact, textPrimary: textPrimary, onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const EmergencyContactScreen()));
+                      }),
                       Divider(color: dividerColor, height: 1),
                       _buildNavRow(
                         icon: Icons.shield_outlined,

@@ -240,7 +240,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get searchDoctor => 'Chercher médecin, spécialité...';
 
   @override
-  String get all => 'Tous';
+  String get all => 'Tout';
 
   @override
   String get cardiologist => 'Cardiologue';
@@ -306,19 +306,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get reminders => 'Rappels';
 
   @override
-  String get stayOnTrack => 'Restez sur la bonne voie';
+  String get stayOnTrack => 'Restez au top de votre santé';
 
   @override
-  String get add => '+ Ajouter';
+  String get add => 'Ajouter';
 
   @override
-  String get activeMeds => 'Méd.\nActifs';
+  String get activeMeds => 'Traitements\nActifs';
 
   @override
-  String get activeAppts => 'RDV\nActifs';
+  String get activeAppts => 'Ordonnances\nActives';
 
   @override
-  String get totalActive => 'Total\nActifs';
+  String get totalActive => 'Total\nActif';
 
   @override
   String get visits => 'Visites';
@@ -496,4 +496,165 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get piSave => 'Enregistrer';
+
+  @override
+  String get ecTitle => 'Contact d\'urgence';
+
+  @override
+  String get ecSubtitle => 'Qui appeler en cas d\'urgence';
+
+  @override
+  String get ecSectionContact => 'COORDONNÉES';
+
+  @override
+  String get ecBannerText =>
+      'Cette personne sera contactée par le personnel médical en cas d\'urgence. Assurez-vous que les informations sont exactes.';
+
+  @override
+  String get ecName => 'Nom complet';
+
+  @override
+  String get ecNameHint => 'ex. Jean Dupont';
+
+  @override
+  String get ecPhone => 'Numéro de téléphone';
+
+  @override
+  String get ecPhoneHint => 'ex. +216 XX XXX XXX';
+
+  @override
+  String get ecSaved => 'Contact d\'urgence enregistré';
+
+  @override
+  String get ecErrorSave => 'Échec de l\'enregistrement';
+
+  @override
+  String get ecSaving => 'Enregistrement...';
+
+  @override
+  String get ecSave => 'Enregistrer le contact';
+
+  @override
+  String get piSectionMedicine => 'MÉDICAMENTS';
+
+  @override
+  String get piMedicineHint => 'Rechercher par nom ou principe actif…';
+
+  @override
+  String get treatments => 'Traitements';
+
+  @override
+  String get prescriptions => 'Ordonnances';
+
+  @override
+  String get treatment => 'Traitement';
+
+  @override
+  String get prescription => 'Ordonnance';
+
+  @override
+  String get retry => 'Réessayer';
+
+  @override
+  String get noReminders => 'Aucun rappel pour l\'instant';
+
+  @override
+  String get newReminder => 'Nouveau Rappel';
+
+  @override
+  String get save => 'Enregistrer';
+
+  @override
+  String get treatmentName => 'NOM DU TRAITEMENT';
+
+  @override
+  String get treatmentNameHint => 'ex. Traitement de canal';
+
+  @override
+  String get description => 'DESCRIPTION';
+
+  @override
+  String get descriptionHint => 'Brève description...';
+
+  @override
+  String get notes => 'NOTES';
+
+  @override
+  String get notesHint => 'Notes supplémentaires...';
+
+  @override
+  String get status => 'STATUT';
+
+  @override
+  String get date => 'DATE';
+
+  @override
+  String get selectDate => 'Sélectionner une date';
+
+  @override
+  String get medicationName => 'MÉDICAMENT / COMPLÉMENT';
+
+  @override
+  String get medicationHint => 'ex. Vitamine D3 1000 UI';
+
+  @override
+  String get dosage => 'DOSAGE & FRÉQUENCE';
+
+  @override
+  String get dosageHint => 'ex. Une fois par jour, matin';
+
+  @override
+  String get instructions => 'INSTRUCTIONS';
+
+  @override
+  String get instructionsHint => 'ex. Prendre avec de la nourriture';
+
+  @override
+  String get durationDays => 'DURÉE';
+
+  @override
+  String get medicineSearchTitle => 'Recherche de médicament';
+
+  @override
+  String get medicineSearchSubtitle => 'Prix des médicaments en Tunisie (CNAM)';
+
+  @override
+  String get medicineSearchHint => 'Rechercher par nom ou principe actif…';
+
+  @override
+  String get medicineNoResults => 'Aucun médicament trouvé pour';
+
+  @override
+  String get medicineTypeToSearch =>
+      'Tapez au moins 2 caractères pour rechercher';
+
+  @override
+  String get medicineLoading => 'Recherche en cours…';
+
+  @override
+  String get medicineError => 'Impossible de charger les résultats.';
+
+  @override
+  String get medicineRetry => 'Réessayer';
+
+  @override
+  String get medicineLabelSubstance => 'Principe actif';
+
+  @override
+  String get medicineLabelForm => 'Forme';
+
+  @override
+  String get medicineLabelDosage => 'Dosage';
+
+  @override
+  String get medicineLabelPresentation => 'Présentation';
+
+  @override
+  String get medicineLabelPrice => 'Prix';
+
+  @override
+  String get medicineLabelLab => 'Laboratoire';
+
+  @override
+  String get medicineLabelClass => 'Classe';
 }

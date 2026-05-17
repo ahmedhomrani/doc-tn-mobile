@@ -305,16 +305,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminders => 'Reminders';
 
   @override
-  String get stayOnTrack => 'Stay on track';
+  String get stayOnTrack => 'Stay on top of your health';
 
   @override
-  String get add => '+ Add';
+  String get add => 'Add';
 
   @override
-  String get activeMeds => 'Active\nMeds';
+  String get activeMeds => 'Active\nTreatments';
 
   @override
-  String get activeAppts => 'Active\nAppts';
+  String get activeAppts => 'Active\nPrescriptions';
 
   @override
   String get totalActive => 'Total\nActive';
@@ -495,4 +495,164 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get piSave => 'Save Changes';
+
+  @override
+  String get ecTitle => 'Emergency Contact';
+
+  @override
+  String get ecSubtitle => 'Who to call in an emergency';
+
+  @override
+  String get ecSectionContact => 'CONTACT DETAILS';
+
+  @override
+  String get ecBannerText =>
+      'This person will be contacted by medical staff in case of an emergency. Please make sure the information is accurate.';
+
+  @override
+  String get ecName => 'Full Name';
+
+  @override
+  String get ecNameHint => 'e.g. John Doe';
+
+  @override
+  String get ecPhone => 'Phone Number';
+
+  @override
+  String get ecPhoneHint => 'e.g. +216 XX XXX XXX';
+
+  @override
+  String get ecSaved => 'Emergency contact saved';
+
+  @override
+  String get ecErrorSave => 'Failed to save contact';
+
+  @override
+  String get ecSaving => 'Saving...';
+
+  @override
+  String get ecSave => 'Save Contact';
+
+  @override
+  String get piSectionMedicine => 'MEDICATION SEARCH';
+
+  @override
+  String get piMedicineHint => 'Search by name or active ingredient…';
+
+  @override
+  String get treatments => 'Treatments';
+
+  @override
+  String get prescriptions => 'Prescriptions';
+
+  @override
+  String get treatment => 'Treatment';
+
+  @override
+  String get prescription => 'Prescription';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get noReminders => 'No reminders yet';
+
+  @override
+  String get newReminder => 'New Reminder';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get treatmentName => 'TREATMENT NAME';
+
+  @override
+  String get treatmentNameHint => 'e.g. Root Canal';
+
+  @override
+  String get description => 'DESCRIPTION';
+
+  @override
+  String get descriptionHint => 'Brief description...';
+
+  @override
+  String get notes => 'NOTES';
+
+  @override
+  String get notesHint => 'Additional notes...';
+
+  @override
+  String get status => 'STATUS';
+
+  @override
+  String get date => 'DATE';
+
+  @override
+  String get selectDate => 'Select a date';
+
+  @override
+  String get medicationName => 'MEDICATION / SUPPLEMENT';
+
+  @override
+  String get medicationHint => 'e.g. Vitamin D3 1000 IU';
+
+  @override
+  String get dosage => 'DOSAGE & FREQUENCY';
+
+  @override
+  String get dosageHint => 'e.g. Once daily, morning';
+
+  @override
+  String get instructions => 'INSTRUCTIONS';
+
+  @override
+  String get instructionsHint => 'e.g. Take with food';
+
+  @override
+  String get durationDays => 'DURATION';
+
+  @override
+  String get medicineSearchTitle => 'Medication Search';
+
+  @override
+  String get medicineSearchSubtitle => 'Tunisian medicine prices (CNAM)';
+
+  @override
+  String get medicineSearchHint => 'Search by name or active ingredient…';
+
+  @override
+  String get medicineNoResults => 'No medicine found for';
+
+  @override
+  String get medicineTypeToSearch => 'Type at least 2 characters to search';
+
+  @override
+  String get medicineLoading => 'Searching…';
+
+  @override
+  String get medicineError => 'Could not load results.';
+
+  @override
+  String get medicineRetry => 'Retry';
+
+  @override
+  String get medicineLabelSubstance => 'Active ingredient';
+
+  @override
+  String get medicineLabelForm => 'Form';
+
+  @override
+  String get medicineLabelDosage => 'Dosage';
+
+  @override
+  String get medicineLabelPresentation => 'Presentation';
+
+  @override
+  String get medicineLabelPrice => 'Price';
+
+  @override
+  String get medicineLabelLab => 'Laboratory';
+
+  @override
+  String get medicineLabelClass => 'Class';
 }

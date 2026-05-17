@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../l10n/app_localizations.dart';
 import '../models/models.dart';
 import '../services/doctor_service.dart';
+import 'doctor_detail_screen.dart';
 
 class DoctorsScreen extends StatefulWidget {
   const DoctorsScreen({super.key});
@@ -16,7 +18,15 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
 
   final DoctorService _service = DoctorService();
   final TextEditingController _searchCtrl = TextEditingController();
+  final TextEditingController _cityCtrl = TextEditingController();
   final ScrollController _scrollCtrl = ScrollController();
+
+  // Location state
+  Position? _userPosition;
+  String? _manualCity;       // set when user types a city manually
+  bool _locationLoading = true;
+  bool _usingLocation = false;
+  bool _locationDenied = false;
 
   // Search / filter state
   String _query = '';
@@ -31,9 +41,8 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
   bool _hasMore = true;
   String? _error;
 
-  // Specialization filter labels
   static const List<Specialization?> _filterSpecs = [
-    null, // All
+    null,
     Specialization.DENTISTRY,
     Specialization.GENERAL_PRACTICE,
     Specialization.CARDIOLOGY,
@@ -45,20 +54,99 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadDoctors(reset: true);
     _scrollCtrl.addListener(_onScroll);
+    _initLocation();
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
     _searchCtrl.dispose();
+    _cityCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
   }
 
+  // ── Location ───────────────────────────────────────────────────────────────
+
+  Future<void> _initLocation() async {
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        _onLocationDenied();
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        _onLocationDenied();
+        return;
+      }
+
+      final pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: const Duration(seconds: 8),
+      );
+
+      if (mounted) {
+        setState(() {
+          _userPosition = pos;
+          _usingLocation = true;
+          _locationLoading = false;
+        });
+        _loadDoctors(reset: true);
+      }
+    } catch (_) {
+      _onLocationDenied();
+    }
+  }
+
+  void _onLocationDenied() {
+    if (!mounted) return;
+    setState(() {
+      _locationDenied = true;
+      _locationLoading = false;
+    });
+    // Show city picker bottom sheet after frame renders
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _showCityPicker();
+    });
+  }
+
+  // ── City picker bottom sheet ───────────────────────────────────────────────
+
+  void _showCityPicker() {
+    _cityCtrl.text = _manualCity ?? '';
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _CityPickerSheet(
+        controller: _cityCtrl,
+        initialCity: _manualCity,
+        onConfirm: (city) {
+          Navigator.pop(context);
+          setState(() => _manualCity = city.trim().isEmpty ? null : city.trim());
+          _loadDoctors(reset: true);
+        },
+        onSkip: () {
+          Navigator.pop(context);
+          _loadDoctors(reset: true);
+        },
+      ),
+    );
+  }
+
+  // ── Scroll / pagination ────────────────────────────────────────────────────
+
   void _onScroll() {
-    if (_scrollCtrl.position.pixels >= _scrollCtrl.position.maxScrollExtent - 200 &&
+    if (_scrollCtrl.position.pixels >=
+            _scrollCtrl.position.maxScrollExtent - 200 &&
         !_isLoadingMore &&
         _hasMore) {
       _loadMore();
@@ -80,6 +168,10 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
       final request = DoctorSearchRequest(
         name: _query.isEmpty ? null : _query,
         specialization: _selectedSpec,
+        city: _usingLocation ? null : _manualCity,
+        lat: _usingLocation ? _userPosition?.latitude : null,
+        lng: _usingLocation ? _userPosition?.longitude : null,
+        radiusKm: _usingLocation ? 25.0 : null,  // adjust radius as needed
         page: 0,
         size: 20,
       );
@@ -102,6 +194,7 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
     }
   }
 
+
   Future<void> _loadMore() async {
     if (_isLoadingMore || !_hasMore) return;
     setState(() => _isLoadingMore = true);
@@ -109,6 +202,10 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
       final request = DoctorSearchRequest(
         name: _query.isEmpty ? null : _query,
         specialization: _selectedSpec,
+        city: _usingLocation ? null : _manualCity,
+        lat: _usingLocation ? _userPosition?.latitude : null,
+        lng: _usingLocation ? _userPosition?.longitude : null,
+        radiusKm: _usingLocation ? 25.0 : null,
         page: _page + 1,
         size: 20,
       );
@@ -125,6 +222,7 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
       if (mounted) setState(() => _isLoadingMore = false);
     }
   }
+  // ── Search / filter ────────────────────────────────────────────────────────
 
   void _onSearchChanged(String val) {
     _debounce?.cancel();
@@ -160,6 +258,8 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
     }
   }
 
+  // ── Build ──────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -173,7 +273,7 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
       backgroundColor: bgColor,
       body: Column(
         children: [
-          // ── Gradient header with functional search ──────────────────────────
+          // ── Gradient header ──────────────────────────────────────────────
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -189,14 +289,22 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      l.findDoctors,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l.findDoctors,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ),
+                        _buildLocationPill(),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -207,7 +315,7 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // Functional search bar
+                    // Search bar
                     Container(
                       height: 48,
                       decoration: BoxDecoration(
@@ -223,16 +331,10 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
                             child: TextField(
                               controller: _searchCtrl,
                               onChanged: _onSearchChanged,
-                              style: const TextStyle(
-                                color: Colors.black87,
-                                fontSize: 14,
-                              ),
+                              style: const TextStyle(color: Colors.black87, fontSize: 14),
                               decoration: InputDecoration(
                                 hintText: l.searchDoctor,
-                                hintStyle: const TextStyle(
-                                  color: Colors.black38,
-                                  fontSize: 14,
-                                ),
+                                hintStyle: const TextStyle(color: Colors.black38, fontSize: 14),
                                 border: InputBorder.none,
                                 isDense: true,
                                 contentPadding: EdgeInsets.zero,
@@ -262,13 +364,18 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
                         ],
                       ),
                     ),
+                    // City row (shown when location denied and city entered or not)
+                    if (_locationDenied && !_usingLocation) ...[
+                      const SizedBox(height: 10),
+                      _buildCityRow(),
+                    ],
                   ],
                 ),
               ),
             ),
           ),
 
-          // ── Specialization filter chips ────────────────────────────────────
+          // ── Specialization filter chips ──────────────────────────────────
           Container(
             height: 52,
             color: bgColor,
@@ -306,13 +413,131 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
             ),
           ),
 
-          // ── Content ───────────────────────────────────────────────────────
+          // ── Content ──────────────────────────────────────────────────────
           Expanded(
-            child: _buildContent(context, l, cardColor, textPrimary, textSecondary, isDark, bgColor),
+            child: _locationLoading
+                ? const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(color: _teal),
+                        SizedBox(height: 12),
+                        Text('Getting your location…',
+                            style: TextStyle(color: Colors.grey)),
+                      ],
+                    ),
+                  )
+                : _buildContent(
+                    context, l, cardColor, textPrimary, textSecondary, isDark, bgColor),
           ),
         ],
       ),
     );
+  }
+
+  /// Tappable city row shown under the search bar when location is denied
+  Widget _buildCityRow() {
+    return GestureDetector(
+      onTap: _showCityPicker,
+      child: Container(
+        height: 38,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.location_city_outlined, color: Colors.white70, size: 16),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                _manualCity != null && _manualCity!.isNotEmpty
+                    ? _manualCity!
+                    : 'Set your city or area…',
+                style: TextStyle(
+                  color: _manualCity != null ? Colors.white : Colors.white60,
+                  fontSize: 13,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const Icon(Icons.edit_outlined, color: Colors.white54, size: 14),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Pill in top-right of header
+  Widget _buildLocationPill() {
+    if (_locationLoading) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 10,
+              height: 10,
+              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 1.5),
+            ),
+            SizedBox(width: 6),
+            Text('Locating', style: TextStyle(color: Colors.white, fontSize: 11)),
+          ],
+        ),
+      );
+    }
+
+    if (_usingLocation) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.25),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.my_location, color: Colors.white, size: 12),
+            SizedBox(width: 4),
+            Text('Near you',
+                style: TextStyle(
+                    color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      );
+    }
+    if (_manualCity != null && _manualCity!.isNotEmpty) {
+      return GestureDetector(
+        onTap: _showCityPicker,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.location_city, color: Colors.white, size: 12),
+              const SizedBox(width: 4),
+              Text(
+                _manualCity!,
+                style: const TextStyle(
+                    color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 
   Widget _buildContent(
@@ -335,18 +560,20 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
           children: [
             Icon(Icons.wifi_off_rounded, size: 64, color: textSecondary),
             const SizedBox(height: 16),
-            Text(
-              'Connection error',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary),
-            ),
+            Text('Connection error',
+                style: TextStyle(
+                    fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary)),
             const SizedBox(height: 8),
-            Text(_error!, style: TextStyle(color: textSecondary, fontSize: 13), textAlign: TextAlign.center),
+            Text(_error!,
+                style: TextStyle(color: textSecondary, fontSize: 13),
+                textAlign: TextAlign.center),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () => _loadDoctors(reset: true),
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
-              style: ElevatedButton.styleFrom(backgroundColor: _teal, foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: _teal, foregroundColor: Colors.white),
             ),
           ],
         ),
@@ -360,15 +587,12 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
           children: [
             Icon(Icons.search_off_rounded, size: 64, color: textSecondary),
             const SizedBox(height: 16),
-            Text(
-              'No doctors found',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary),
-            ),
+            Text('No doctors found',
+                style: TextStyle(
+                    fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary)),
             const SizedBox(height: 8),
-            Text(
-              'Try a different search or filter',
-              style: TextStyle(color: textSecondary, fontSize: 13),
-            ),
+            Text('Try a different search or filter',
+                style: TextStyle(color: textSecondary, fontSize: 13)),
           ],
         ),
       );
@@ -397,6 +621,12 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
             textPrimary: textPrimary,
             textSecondary: textSecondary,
             isDark: isDark,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DoctorDetailScreen(doctor: _doctors[i]),
+              ),
+            ),
           );
         },
       ),
@@ -405,7 +635,205 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
 }
 
 // ─────────────────────────────────────────────────────────
-// Doctor Card Widget
+// City Picker Bottom Sheet
+// ─────────────────────────────────────────────────────────
+
+class _CityPickerSheet extends StatefulWidget {
+  final TextEditingController controller;
+  final String? initialCity;
+  final ValueChanged<String> onConfirm;
+  final VoidCallback onSkip;
+
+  const _CityPickerSheet({
+    required this.controller,
+    required this.initialCity,
+    required this.onConfirm,
+    required this.onSkip,
+  });
+
+  @override
+  State<_CityPickerSheet> createState() => _CityPickerSheetState();
+}
+
+class _CityPickerSheetState extends State<_CityPickerSheet> {
+  static const _teal = Color(0xFF1A9BE8);
+
+  // Quick-pick suggestions for Tunisia
+  static const _suggestions = [
+    'Tunis', 'Sfax', 'Sousse', 'Bizerte',
+    'Kairouan', 'Monastir', 'Nabeul', 'Gabès',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sheetBg = isDark ? const Color(0xFF112240) : Colors.white;
+    final textPrimary = isDark ? Colors.white : const Color(0xFF1A1A2E);
+    final textSecondary = isDark ? Colors.white60 : Colors.black54;
+    final chipBg = isDark ? const Color(0xFF1A3A5C) : const Color(0xFFF0F7FF);
+
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: sheetBg,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Handle bar
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white24 : Colors.black12,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Icon + title
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: _teal.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.location_on_outlined,
+                      color: _teal, size: 24),
+                ),
+                const SizedBox(width: 14),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Where are you?',
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: textPrimary)),
+                    Text('To find doctors near you',
+                        style:
+                            TextStyle(fontSize: 13, color: textSecondary)),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // City text field
+            Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF0D1B2E) : const Color(0xFFF5F7FA),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color: isDark ? Colors.white12 : Colors.black12),
+              ),
+              child: TextField(
+                controller: widget.controller,
+                autofocus: true,
+                style: TextStyle(color: textPrimary, fontSize: 15),
+                decoration: InputDecoration(
+                  hintText: 'City, district or area…',
+                  hintStyle: TextStyle(color: textSecondary, fontSize: 14),
+                  prefixIcon: Icon(Icons.search, color: textSecondary, size: 20),
+                  border: InputBorder.none,
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+                ),
+                textInputAction: TextInputAction.search,
+                onSubmitted: (val) => widget.onConfirm(val),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Quick-pick chips
+            Text('Popular cities',
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: textSecondary)),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _suggestions.map((city) {
+                return GestureDetector(
+                  onTap: () => widget.onConfirm(city),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: chipBg,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                          color: isDark ? Colors.white12 : Colors.black12),
+                    ),
+                    child: Text(city,
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: textPrimary,
+                            fontWeight: FontWeight.w500)),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 20),
+
+            // Action buttons
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: widget.onSkip,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: textSecondary,
+                      side: BorderSide(
+                          color: isDark ? Colors.white24 : Colors.black12),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('Browse all'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton(
+                    onPressed: () => widget.onConfirm(widget.controller.text),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _teal,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    child: const Text('Find doctors',
+                        style: TextStyle(fontWeight: FontWeight.w700)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// Doctor Card Widget (unchanged)
 // ─────────────────────────────────────────────────────────
 
 class _DoctorCard extends StatelessWidget {
@@ -414,6 +842,7 @@ class _DoctorCard extends StatelessWidget {
   final Color textPrimary;
   final Color textSecondary;
   final bool isDark;
+  final VoidCallback? onTap;
 
   const _DoctorCard({
     required this.doctor,
@@ -421,15 +850,12 @@ class _DoctorCard extends StatelessWidget {
     required this.textPrimary,
     required this.textSecondary,
     required this.isDark,
+    this.onTap,
   });
 
   static const List<Color> _avatarColors = [
-    Color(0xFF7986CB),
-    Color(0xFF4DB6AC),
-    Color(0xFFBA68C8),
-    Color(0xFFFF8A65),
-    Color(0xFF4FC3F7),
-    Color(0xFFA5D6A7),
+    Color(0xFF7986CB), Color(0xFF4DB6AC), Color(0xFFBA68C8),
+    Color(0xFFFF8A65), Color(0xFF4FC3F7), Color(0xFFA5D6A7),
   ];
 
   Color get _avatarColor => _avatarColors[doctor.id % _avatarColors.length];
@@ -452,8 +878,9 @@ class _DoctorCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accepting = doctor.acceptingNewPatients ?? true;
-
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cardColor,
@@ -469,7 +896,6 @@ class _DoctorCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Avatar (image or initials)
           _buildAvatar(),
           const SizedBox(width: 14),
           Expanded(
@@ -479,67 +905,51 @@ class _DoctorCard extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        'Dr. ${doctor.fullName}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                          color: textPrimary,
-                        ),
-                      ),
+                      child: Text('Dr. ${doctor.fullName}',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                              color: textPrimary)),
                     ),
                     if (doctor.averageRating != null && doctor.averageRating! > 0)
-                      Row(
-                        children: [
-                          const Icon(Icons.star, color: Color(0xFFFFC107), size: 14),
-                          const SizedBox(width: 2),
-                          Text(
-                            doctor.averageRating!.toStringAsFixed(1),
+                      Row(children: [
+                        const Icon(Icons.star, color: Color(0xFFFFC107), size: 14),
+                        const SizedBox(width: 2),
+                        Text(doctor.averageRating!.toStringAsFixed(1),
                             style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: textPrimary,
-                            ),
-                          ),
-                          if (doctor.totalReviews != null)
-                            Text(
-                              ' (${doctor.totalReviews})',
-                              style: TextStyle(fontSize: 11, color: textSecondary),
-                            ),
-                        ],
-                      ),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: textPrimary)),
+                        if (doctor.totalReviews != null)
+                          Text(' (${doctor.totalReviews})',
+                              style: TextStyle(fontSize: 11, color: textSecondary)),
+                      ]),
                   ],
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  _specializationLabel,
-                  style: TextStyle(
-                    color: const Color(0xFF1A9BE8),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                Text(_specializationLabel,
+                    style: const TextStyle(
+                        color: Color(0xFF1A9BE8),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500)),
                 if (doctor.city != null || doctor.address != null) ...[
                   const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.location_on_outlined, size: 12, color: textSecondary),
-                      const SizedBox(width: 2),
-                      Expanded(
-                        child: Text(
-                          [doctor.address, doctor.city].whereType<String>().join(', '),
-                          style: TextStyle(color: textSecondary, fontSize: 11),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                  Row(children: [
+                    Icon(Icons.location_on_outlined, size: 12, color: textSecondary),
+                    const SizedBox(width: 2),
+                    Expanded(
+                      child: Text(
+                        [doctor.address, doctor.city].whereType<String>().join(', '),
+                        style: TextStyle(color: textSecondary, fontSize: 11),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                  ),
+                    ),
+                  ]),
                 ],
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Accepting badge
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
@@ -559,51 +969,41 @@ class _DoctorCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // Consultation fee
                     if (doctor.consultationFee != null)
-                      Text(
-                        '${doctor.consultationFee!.toStringAsFixed(0)} TND',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: textPrimary,
-                        ),
-                      ),
+                      Text('${doctor.consultationFee!.toStringAsFixed(0)} TND',
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: textPrimary)),
                   ],
                 ),
-                // Experience + spoken languages row
                 if (doctor.yearsOfExperience != null || doctor.spokenLanguages != null) ...[
                   const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      if (doctor.yearsOfExperience != null) ...[
-                        Icon(Icons.work_outline, size: 12, color: textSecondary),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${doctor.yearsOfExperience}y exp',
-                          style: TextStyle(fontSize: 11, color: textSecondary),
-                        ),
-                        const SizedBox(width: 12),
-                      ],
-                      if (doctor.spokenLanguages != null) ...[
-                        Icon(Icons.translate_outlined, size: 12, color: textSecondary),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            doctor.spokenLanguages!,
-                            style: TextStyle(fontSize: 11, color: textSecondary),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                  Row(children: [
+                    if (doctor.yearsOfExperience != null) ...[
+                      Icon(Icons.work_outline, size: 12, color: textSecondary),
+                      const SizedBox(width: 4),
+                      Text('${doctor.yearsOfExperience}y exp',
+                          style: TextStyle(fontSize: 11, color: textSecondary)),
+                      const SizedBox(width: 12),
                     ],
-                  ),
+                    if (doctor.spokenLanguages != null) ...[
+                      Icon(Icons.translate_outlined, size: 12, color: textSecondary),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(doctor.spokenLanguages!,
+                            style: TextStyle(fontSize: 11, color: textSecondary),
+                            overflow: TextOverflow.ellipsis),
+                      ),
+                    ],
+                  ]),
                 ],
               ],
             ),
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -613,9 +1013,7 @@ class _DoctorCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(30),
         child: Image.network(
           doctor.profileImageUrl!,
-          width: 60,
-          height: 60,
-          fit: BoxFit.cover,
+          width: 60, height: 60, fit: BoxFit.cover,
           errorBuilder: (_, __, ___) => _initialsAvatar(),
         ),
       );
@@ -627,14 +1025,9 @@ class _DoctorCard extends StatelessWidget {
     return CircleAvatar(
       radius: 30,
       backgroundColor: _avatarColor.withOpacity(0.15),
-      child: Text(
-        _initials,
-        style: TextStyle(
-          color: _avatarColor,
-          fontWeight: FontWeight.w700,
-          fontSize: 18,
-        ),
-      ),
+      child: Text(_initials,
+          style: TextStyle(
+              color: _avatarColor, fontWeight: FontWeight.w700, fontSize: 18)),
     );
   }
 }

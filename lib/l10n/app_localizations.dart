@@ -691,25 +691,25 @@ abstract class AppLocalizations {
   /// No description provided for @stayOnTrack.
   ///
   /// In en, this message translates to:
-  /// **'Stay on track'**
+  /// **'Stay on top of your health'**
   String get stayOnTrack;
 
   /// No description provided for @add.
   ///
   /// In en, this message translates to:
-  /// **'+ Add'**
+  /// **'Add'**
   String get add;
 
   /// No description provided for @activeMeds.
   ///
   /// In en, this message translates to:
-  /// **'Active\nMeds'**
+  /// **'Active\nTreatments'**
   String get activeMeds;
 
   /// No description provided for @activeAppts.
   ///
   /// In en, this message translates to:
-  /// **'Active\nAppts'**
+  /// **'Active\nPrescriptions'**
   String get activeAppts;
 
   /// No description provided for @totalActive.
@@ -1071,6 +1071,324 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save Changes'**
   String get piSave;
+
+  /// No description provided for @ecTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Contact'**
+  String get ecTitle;
+
+  /// No description provided for @ecSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who to call in an emergency'**
+  String get ecSubtitle;
+
+  /// No description provided for @ecSectionContact.
+  ///
+  /// In en, this message translates to:
+  /// **'CONTACT DETAILS'**
+  String get ecSectionContact;
+
+  /// No description provided for @ecBannerText.
+  ///
+  /// In en, this message translates to:
+  /// **'This person will be contacted by medical staff in case of an emergency. Please make sure the information is accurate.'**
+  String get ecBannerText;
+
+  /// No description provided for @ecName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get ecName;
+
+  /// No description provided for @ecNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. John Doe'**
+  String get ecNameHint;
+
+  /// No description provided for @ecPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get ecPhone;
+
+  /// No description provided for @ecPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. +216 XX XXX XXX'**
+  String get ecPhoneHint;
+
+  /// No description provided for @ecSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency contact saved'**
+  String get ecSaved;
+
+  /// No description provided for @ecErrorSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save contact'**
+  String get ecErrorSave;
+
+  /// No description provided for @ecSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get ecSaving;
+
+  /// No description provided for @ecSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Contact'**
+  String get ecSave;
+
+  /// No description provided for @piSectionMedicine.
+  ///
+  /// In en, this message translates to:
+  /// **'MEDICATION SEARCH'**
+  String get piSectionMedicine;
+
+  /// No description provided for @piMedicineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or active ingredient…'**
+  String get piMedicineHint;
+
+  /// No description provided for @treatments.
+  ///
+  /// In en, this message translates to:
+  /// **'Treatments'**
+  String get treatments;
+
+  /// No description provided for @prescriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescriptions'**
+  String get prescriptions;
+
+  /// No description provided for @treatment.
+  ///
+  /// In en, this message translates to:
+  /// **'Treatment'**
+  String get treatment;
+
+  /// No description provided for @prescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription'**
+  String get prescription;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @noReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders yet'**
+  String get noReminders;
+
+  /// No description provided for @newReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'New Reminder'**
+  String get newReminder;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @treatmentName.
+  ///
+  /// In en, this message translates to:
+  /// **'TREATMENT NAME'**
+  String get treatmentName;
+
+  /// No description provided for @treatmentNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Root Canal'**
+  String get treatmentNameHint;
+
+  /// No description provided for @description.
+  ///
+  /// In en, this message translates to:
+  /// **'DESCRIPTION'**
+  String get description;
+
+  /// No description provided for @descriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Brief description...'**
+  String get descriptionHint;
+
+  /// No description provided for @notes.
+  ///
+  /// In en, this message translates to:
+  /// **'NOTES'**
+  String get notes;
+
+  /// No description provided for @notesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional notes...'**
+  String get notesHint;
+
+  /// No description provided for @status.
+  ///
+  /// In en, this message translates to:
+  /// **'STATUS'**
+  String get status;
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'DATE'**
+  String get date;
+
+  /// No description provided for @selectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a date'**
+  String get selectDate;
+
+  /// No description provided for @medicationName.
+  ///
+  /// In en, this message translates to:
+  /// **'MEDICATION / SUPPLEMENT'**
+  String get medicationName;
+
+  /// No description provided for @medicationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Vitamin D3 1000 IU'**
+  String get medicationHint;
+
+  /// No description provided for @dosage.
+  ///
+  /// In en, this message translates to:
+  /// **'DOSAGE & FREQUENCY'**
+  String get dosage;
+
+  /// No description provided for @dosageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Once daily, morning'**
+  String get dosageHint;
+
+  /// No description provided for @instructions.
+  ///
+  /// In en, this message translates to:
+  /// **'INSTRUCTIONS'**
+  String get instructions;
+
+  /// No description provided for @instructionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Take with food'**
+  String get instructionsHint;
+
+  /// No description provided for @durationDays.
+  ///
+  /// In en, this message translates to:
+  /// **'DURATION'**
+  String get durationDays;
+
+  /// No description provided for @medicineSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Medication Search'**
+  String get medicineSearchTitle;
+
+  /// No description provided for @medicineSearchSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tunisian medicine prices (CNAM)'**
+  String get medicineSearchSubtitle;
+
+  /// No description provided for @medicineSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or active ingredient…'**
+  String get medicineSearchHint;
+
+  /// No description provided for @medicineNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No medicine found for'**
+  String get medicineNoResults;
+
+  /// No description provided for @medicineTypeToSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Type at least 2 characters to search'**
+  String get medicineTypeToSearch;
+
+  /// No description provided for @medicineLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching…'**
+  String get medicineLoading;
+
+  /// No description provided for @medicineError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load results.'**
+  String get medicineError;
+
+  /// No description provided for @medicineRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get medicineRetry;
+
+  /// No description provided for @medicineLabelSubstance.
+  ///
+  /// In en, this message translates to:
+  /// **'Active ingredient'**
+  String get medicineLabelSubstance;
+
+  /// No description provided for @medicineLabelForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get medicineLabelForm;
+
+  /// No description provided for @medicineLabelDosage.
+  ///
+  /// In en, this message translates to:
+  /// **'Dosage'**
+  String get medicineLabelDosage;
+
+  /// No description provided for @medicineLabelPresentation.
+  ///
+  /// In en, this message translates to:
+  /// **'Presentation'**
+  String get medicineLabelPresentation;
+
+  /// No description provided for @medicineLabelPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get medicineLabelPrice;
+
+  /// No description provided for @medicineLabelLab.
+  ///
+  /// In en, this message translates to:
+  /// **'Laboratory'**
+  String get medicineLabelLab;
+
+  /// No description provided for @medicineLabelClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Class'**
+  String get medicineLabelClass;
 }
 
 class _AppLocalizationsDelegate

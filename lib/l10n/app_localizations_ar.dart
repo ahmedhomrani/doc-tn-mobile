@@ -305,16 +305,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reminders => 'التذكيرات';
 
   @override
-  String get stayOnTrack => 'ابقَ على المسار الصحيح';
+  String get stayOnTrack => 'ابقَ على اطلاع بصحتك';
 
   @override
-  String get add => '+ إضافة';
+  String get add => 'إضافة';
 
   @override
-  String get activeMeds => 'أدوية\nنشطة';
+  String get activeMeds => 'علاجات\nنشطة';
 
   @override
-  String get activeAppts => 'مواعيد\nنشطة';
+  String get activeAppts => 'وصفات\nنشطة';
 
   @override
   String get totalActive => 'المجموع\nالنشط';
@@ -495,4 +495,164 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get piSave => 'حفظ التغييرات';
+
+  @override
+  String get ecTitle => 'جهة الاتصال في حالات الطوارئ';
+
+  @override
+  String get ecSubtitle => 'من يجب الاتصال به في حالة الطوارئ';
+
+  @override
+  String get ecSectionContact => 'تفاصيل الاتصال';
+
+  @override
+  String get ecBannerText =>
+      'سيتم الاتصال بهذا الشخص من قبل الطاقم الطبي في حالة الطوارئ. يرجى التأكد من أن المعلومات دقيقة.';
+
+  @override
+  String get ecName => 'الاسم الكامل';
+
+  @override
+  String get ecNameHint => 'مثال: محمد علي';
+
+  @override
+  String get ecPhone => 'رقم الهاتف';
+
+  @override
+  String get ecPhoneHint => 'مثال: +216 XX XXX XXX';
+
+  @override
+  String get ecSaved => 'تم حفظ جهة الاتصال للطوارئ';
+
+  @override
+  String get ecErrorSave => 'فشل في حفظ جهة الاتصال';
+
+  @override
+  String get ecSaving => 'جارٍ الحفظ...';
+
+  @override
+  String get ecSave => 'حفظ جهة الاتصال';
+
+  @override
+  String get piSectionMedicine => 'البحث عن دواء';
+
+  @override
+  String get piMedicineHint => 'ابحث بالاسم أو المادة الفعالة…';
+
+  @override
+  String get treatments => 'العلاجات';
+
+  @override
+  String get prescriptions => 'الوصفات';
+
+  @override
+  String get treatment => 'علاج';
+
+  @override
+  String get prescription => 'وصفة';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get noReminders => 'لا توجد تذكيرات بعد';
+
+  @override
+  String get newReminder => 'تذكير جديد';
+
+  @override
+  String get save => 'حفظ';
+
+  @override
+  String get treatmentName => 'اسم العلاج';
+
+  @override
+  String get treatmentNameHint => 'مثال: علاج العصب';
+
+  @override
+  String get description => 'الوصف';
+
+  @override
+  String get descriptionHint => 'وصف مختصر...';
+
+  @override
+  String get notes => 'ملاحظات';
+
+  @override
+  String get notesHint => 'ملاحظات إضافية...';
+
+  @override
+  String get status => 'الحالة';
+
+  @override
+  String get date => 'التاريخ';
+
+  @override
+  String get selectDate => 'اختر تاريخاً';
+
+  @override
+  String get medicationName => 'الدواء / المكمل الغذائي';
+
+  @override
+  String get medicationHint => 'مثال: فيتامين د3 1000 وحدة';
+
+  @override
+  String get dosage => 'الجرعة والتكرار';
+
+  @override
+  String get dosageHint => 'مثال: مرة يومياً، صباحاً';
+
+  @override
+  String get instructions => 'التعليمات';
+
+  @override
+  String get instructionsHint => 'مثال: يؤخذ مع الطعام';
+
+  @override
+  String get durationDays => 'المدة';
+
+  @override
+  String get medicineSearchTitle => 'البحث عن دواء';
+
+  @override
+  String get medicineSearchSubtitle => 'أسعار الأدوية في تونس (CNAM)';
+
+  @override
+  String get medicineSearchHint => 'ابحث بالاسم أو المادة الفعالة…';
+
+  @override
+  String get medicineNoResults => 'لا توجد نتائج لـ';
+
+  @override
+  String get medicineTypeToSearch => 'اكتب حرفين على الأقل للبحث';
+
+  @override
+  String get medicineLoading => 'جارٍ البحث…';
+
+  @override
+  String get medicineError => 'تعذّر تحميل النتائج.';
+
+  @override
+  String get medicineRetry => 'إعادة المحاولة';
+
+  @override
+  String get medicineLabelSubstance => 'المادة الفعالة';
+
+  @override
+  String get medicineLabelForm => 'الشكل';
+
+  @override
+  String get medicineLabelDosage => 'الجرعة';
+
+  @override
+  String get medicineLabelPresentation => 'التعبئة';
+
+  @override
+  String get medicineLabelPrice => 'السعر';
+
+  @override
+  String get medicineLabelLab => 'المختبر';
+
+  @override
+  String get medicineLabelClass => 'الصنف';
 }

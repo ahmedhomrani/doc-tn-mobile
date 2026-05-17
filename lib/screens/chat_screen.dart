@@ -381,6 +381,11 @@ class _ConversationScreenState extends State<_ConversationScreen> {
         setState(() { _messages = msgs; _isLoading = false; });
         WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
       }
+      for (final msg in msgs) {
+        if (msg.senderId == widget.conversation.id) {
+        widget.service.markAsRead(msg.id); // fire and forget
+        }
+      }
     } catch (e) {
       if (mounted) setState(() { _error = e.toString(); _isLoading = false; });
     }

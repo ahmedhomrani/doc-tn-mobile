@@ -285,8 +285,8 @@ class PatientRequest {
   final String? bloodType;
 
   PatientRequest({
-    required this.firstName,
-    required this.lastName,
+    this.firstName = '',
+    this.lastName = '',
     this.email,
     this.phoneNumber,
     this.dateOfBirth,
@@ -305,8 +305,8 @@ class PatientRequest {
   });
 
   Map<String, dynamic> toJson() => {
-        'firstName': firstName,
-        'lastName': lastName,
+        if (firstName.isNotEmpty) 'firstName': firstName,
+        if (lastName.isNotEmpty) 'lastName': lastName,
         if (email != null) 'email': email,
         if (phoneNumber != null) 'phoneNumber': phoneNumber,
         if (dateOfBirth != null) 'dateOfBirth': dateOfBirth,
@@ -617,49 +617,50 @@ class UpdateDoctorRequest {
 }
 
 class DoctorSearchRequest {
+  final String? name;
   final Specialization? specialization;
   final String? city;
-  final String? name;
-  final double? maxFee;
-  final String? language;
-  final bool? acceptingNewPatients;
   final double? lat;
   final double? lng;
   final double? radiusKm;
+  final double? maxFee;
+  final String? language;
+  final bool? acceptingNewPatients;
   final String? sortBy;
-  final int page;
-  final int size;
+  final int? page;
+  final int? size;
 
   DoctorSearchRequest({
+    this.name,
     this.specialization,
     this.city,
-    this.name,
-    this.maxFee,
-    this.language,
-    this.acceptingNewPatients,
     this.lat,
     this.lng,
     this.radiusKm,
+    this.maxFee,
+    this.language,
+    this.acceptingNewPatients,
     this.sortBy,
-    this.page = 0,
-    this.size = 10,
+    this.page,
+    this.size,
   });
 
-  Map<String, String> toQueryParams() => {
-        if (specialization != null) 'specialization': specialization!.name,
-        if (city != null) 'city': city!,
-        if (name != null) 'name': name!,
-        if (maxFee != null) 'maxFee': maxFee.toString(),
-        if (language != null) 'language': language!,
-        if (acceptingNewPatients != null)
-          'acceptingNewPatients': acceptingNewPatients.toString(),
-        if (lat != null) 'lat': lat.toString(),
-        if (lng != null) 'lng': lng.toString(),
-        if (radiusKm != null) 'radiusKm': radiusKm.toString(),
-        if (sortBy != null) 'sortBy': sortBy!,
-        'page': page.toString(),
-        'size': size.toString(),
-      };
+  Map<String, String> toQueryParams() {
+    final map = <String, String>{};
+    if (name != null)                 map['name']                = name!;
+    if (specialization != null)       map['specialization']      = specialization!.name;
+    if (city != null)                 map['city']                = city!;
+    if (lat != null)                  map['lat']                 = lat!.toString();
+    if (lng != null)                  map['lng']                 = lng!.toString();
+    if (radiusKm != null)             map['radiusKm']            = radiusKm!.toString();
+    if (maxFee != null)               map['maxFee']              = maxFee!.toString();
+    if (language != null)             map['language']            = language!;
+    if (acceptingNewPatients != null) map['acceptingNewPatients']= acceptingNewPatients!.toString();
+    if (sortBy != null)               map['sortBy']              = sortBy!;
+    if (page != null)                 map['page']                = page!.toString();
+    if (size != null)                 map['size']                = size!.toString();
+    return map;
+  }
 }
 
 class DoctorSearchResponse {
@@ -677,10 +678,18 @@ class DoctorSearchResponse {
   final bool? acceptingNewPatients;
   final double? averageRating;
   final int? totalReviews;
+  final Gender? gender;
+  final bool enabled;
+  // Location (flat)
   final String? city;
   final String? address;
   final double? latitude;
   final double? longitude;
+  final String? country;
+  // Nested
+  final List<DoctorReviewDto> reviews;
+  final List<DoctorEducationDto> education;
+  final List<DoctorAvailabilityDto> availability;
 
   DoctorSearchResponse({
     required this.id,
@@ -697,38 +706,118 @@ class DoctorSearchResponse {
     this.acceptingNewPatients,
     this.averageRating,
     this.totalReviews,
+    this.gender,
+    this.enabled = true,
     this.city,
     this.address,
     this.latitude,
     this.longitude,
+    this.country,
+    this.reviews = const [],
+    this.education = const [],
+    this.availability = const [],
   });
 
-  factory DoctorSearchResponse.fromJson(Map<String, dynamic> j) => DoctorSearchResponse(
-        id: j['id'],
-        firstName: j['firstName'],
-        lastName: j['lastName'],
-        specialization: j['specialization'] != null
-            ? Specialization.values.byName(j['specialization'])
-            : null,
-        profileImageUrl: j['profileImageUrl'],
-        bio: j['bio'],
-        yearsOfExperience: j['yearsOfExperience'],
-        consultationFee: (j['consultationFee'] as num?)?.toDouble(),
-        consultationDuration: j['consultationDuration'],
-        consultationType: j['consultationType'] != null
-            ? ConsultationType.values.byName(j['consultationType'])
-            : null,
-        spokenLanguages: j['spokenLanguages'],
-        acceptingNewPatients: j['acceptingNewPatients'],
-        averageRating: (j['averageRating'] as num?)?.toDouble(),
-        totalReviews: j['totalReviews'],
-        city: j['city'],
-        address: j['address'],
-        latitude: (j['latitude'] as num?)?.toDouble(),
-        longitude: (j['longitude'] as num?)?.toDouble(),
-      );
+  factory DoctorSearchResponse.fromJson(Map<String, dynamic> j) {
+    // location can be nested object or flat fields
+    final loc = j['location'] as Map<String, dynamic>?;
+    return DoctorSearchResponse(
+      id: j['id'],
+      firstName: j['firstName'],
+      lastName: j['lastName'],
+      specialization: j['specialization'] != null
+          ? Specialization.values.byName(j['specialization'])
+          : null,
+      profileImageUrl: j['profileImageUrl'],
+      bio: j['bio'],
+      yearsOfExperience: j['yearsOfExperience'],
+      consultationFee: (j['consultationFee'] as num?)?.toDouble(),
+      consultationDuration: j['consultationDuration'],
+      consultationType: j['consultationType'] != null
+          ? ConsultationType.values.byName(j['consultationType'])
+          : null,
+      spokenLanguages: j['spokenLanguages'],
+      acceptingNewPatients: j['acceptingNewPatients'],
+      averageRating: (j['averageRating'] as num?)?.toDouble(),
+      totalReviews: j['totalReviews'],
+      gender: j['gender'] != null ? Gender.values.byName(j['gender']) : null,
+      enabled: j['enabled'] ?? true,
+      city: loc?['city'] ?? j['city'],
+      address: loc?['address'] ?? j['address'],
+      latitude: (loc?['latitude'] ?? j['latitude'] as num?)?.toDouble(),
+      longitude: (loc?['longitude'] ?? j['longitude'] as num?)?.toDouble(),
+      country: loc?['country'] ?? j['country'],
+      reviews: (j['reviews'] as List? ?? [])
+          .map((e) => DoctorReviewDto.fromJson(e))
+          .toList(),
+      education: (j['education'] as List? ?? [])
+          .map((e) => DoctorEducationDto.fromJson(e))
+          .toList(),
+      availability: (j['availability'] as List? ?? [])
+          .map((e) => DoctorAvailabilityDto.fromJson(e))
+          .toList(),
+    );
+  }
 
   String get fullName => '$firstName $lastName';
+}
+
+// ── Nested DTOs ──────────────────────────────────────────
+
+class DoctorReviewDto {
+  final int? id;
+  final int? rating;
+  final String? comment;
+  final String? patientName;
+
+  DoctorReviewDto({this.id, this.rating, this.comment, this.patientName});
+
+  factory DoctorReviewDto.fromJson(Map<String, dynamic> j) => DoctorReviewDto(
+        id: j['id'],
+        rating: j['rating'],
+        comment: j['comment'],
+        patientName: j['patientName'],
+      );
+}
+
+class DoctorEducationDto {
+  final int? id;
+  final String? degree;
+  final String? institution;
+  final int? graduationYear;
+
+  DoctorEducationDto({this.id, this.degree, this.institution, this.graduationYear});
+
+  factory DoctorEducationDto.fromJson(Map<String, dynamic> j) => DoctorEducationDto(
+        id: j['id'],
+        degree: j['degree'],
+        institution: j['institution'],
+        graduationYear: j['graduationYear'],
+      );
+}
+
+class DoctorAvailabilityDto {
+  final int? id;
+  final String? dayOfWeek;
+  final String? startTime;
+  final String? endTime;
+  final bool available;
+
+  DoctorAvailabilityDto({
+    this.id,
+    this.dayOfWeek,
+    this.startTime,
+    this.endTime,
+    this.available = true,
+  });
+
+  factory DoctorAvailabilityDto.fromJson(Map<String, dynamic> j) => DoctorAvailabilityDto(
+        id: j['id'],
+        dayOfWeek: j['dayOfWeek'],
+        startTime: j['startTime'],
+        endTime: j['endTime'],
+        available: j['available'] ?? true,
+      );
 }
 
 class DoctorReview {

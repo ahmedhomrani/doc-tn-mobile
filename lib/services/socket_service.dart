@@ -112,6 +112,8 @@ class SocketService {
   bool _connected = false;
   int? _currentUserId;
   Timer? _pollTimer;
+  final Set<int> _emittedMessageIds = {};
+  final Set<int> _emittedNotificationIds = {};
 
   // Streams
   final _messageController =
@@ -142,13 +144,6 @@ class SocketService {
     });
   }
 
-  void disconnect() {
-    _pollTimer?.cancel();
-    _connected = false;
-    _currentUserId = null;
-    _connectionController.add(false);
-  }
-
   // ── Polling fallback ─────────────────────────────────────────
 
   Future<void> _pollUnread(int userId, String token) async {
@@ -170,18 +165,20 @@ class SocketService {
         final list = jsonDecode(res.body) as List;
         for (final item in list) {
           final msg = SocketChatMessage.fromJson(item as Map<String, dynamic>);
-          _messageController.add(msg);
+          
+          // Only emit if we haven't seen this message before
+          if (!_emittedMessageIds.contains(msg.id)) {
+            _emittedMessageIds.add(msg.id);
+            _messageController.add(msg);
+          }
         }
       }
-    } catch (_) {
-      // Silently ignore network errors in background poll
-    }
+    } catch (_) {}
   }
 
   Future<void> _pollNotifications(String token) async {
     try {
-      final uri =
-          Uri.parse('${BaseService.baseUrl}/api/notifications/unread');
+      final uri = Uri.parse('${BaseService.baseUrl}/api/notifications/unread');
       final res = await http.get(uri, headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -190,14 +187,25 @@ class SocketService {
       if (res.statusCode == 200) {
         final list = jsonDecode(res.body) as List;
         for (final item in list) {
-          final notif =
-              SocketNotification.fromJson(item as Map<String, dynamic>);
-          _notificationController.add(notif);
+          final notif = SocketNotification.fromJson(item as Map<String, dynamic>);
+
+          if (!_emittedNotificationIds.contains(notif.id)) {
+            _emittedNotificationIds.add(notif.id);
+            _notificationController.add(notif);
+          }
         }
       }
-    } catch (_) {
-      // Silently ignore
-    }
+    } catch (_) {}
+  }
+
+  // Clear tracked IDs on disconnect so a fresh connect starts clean
+  void disconnect() {
+    _pollTimer?.cancel();
+    _connected = false;
+    _currentUserId = null;
+    _emittedMessageIds.clear();
+    _emittedNotificationIds.clear();
+    _connectionController.add(false);
   }
 
   // ── Send message via REST (STOMP fallback) ───────────────────
